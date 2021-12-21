@@ -1,0 +1,15 @@
+{
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-kudostwitter-prod-51308-authRole",
+      "UnauthRoleArn": "arn:aws:iam::391437285077:role/amplify-kudostwitter-prod-51308-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::391437285077:role/amplify-kudostwitter-prod-51308-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-kudostwitter-prod-51308-deployment",
+      "UnauthRoleName": "amplify-kudostwitter-prod-51308-unauthRole",
+      "StackName": "amplify-kudostwitter-prod-51308",
+      "StackId": "arn:aws:cloudformation:us-east-1:391437285077:stack/amplify-kudostwitter-prod-51308/b0b1a040-621c-11ec-9adf-0ed97d4c6921",
+      "AmplifyAppId": "d2uh7hyid0jaxm"
+    }
+  }
+}
