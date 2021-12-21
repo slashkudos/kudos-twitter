@@ -9,7 +9,19 @@
       "UnauthRoleName": "amplify-kudostwitter-prod-51308-unauthRole",
       "StackName": "amplify-kudostwitter-prod-51308",
       "StackId": "arn:aws:cloudformation:us-east-1:391437285077:stack/amplify-kudostwitter-prod-51308/b0b1a040-621c-11ec-9adf-0ed97d4c6921",
-      "AmplifyAppId": "d2uh7hyid0jaxm"
+      "AmplifyAppId": "d2uh7hyid0jaxm",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-kudostwitter-prod-51308-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+    },
+    "categories": {
+      "auth": {
+        "undefined": {}
+      },
+      "function": {
+        "twitterwebhookshandler": {
+          "deploymentBucketName": "amplify-kudostwitter-prod-51308-deployment",
+          "s3Key": "amplify-builds/twitterwebhookshandler-6d584a496d5753446a59-build.zip"
+        }
+      }
     }
   }
 }

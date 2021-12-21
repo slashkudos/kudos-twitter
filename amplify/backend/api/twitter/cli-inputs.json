@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "paths": {
+    "/webhooks": {
+      "name": "/webhooks",
+      "lambdaFunction": "twitterwebhookshandler",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    }
+  }
+}
