@@ -1,15 +1,31 @@
+import { get_challenge_response } from './security';
 
-
-exports.handler = async (event) => {
-    // TODO implement
+// ANY http method to /webhooks will come here
+// See issue: https://github.com/aws-amplify/amplify-cli/issues/1232
+// API Gateway Event format: https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html#apigateway-example-event
+export async function handler(event) {
+    const httpMethod = event.httpMethod;
     const response = {
         statusCode: 200,
-    //  Uncomment below to enable CORS requests
-    //  headers: {
-    //      "Access-Control-Allow-Origin": "*",
-    //      "Access-Control-Allow-Headers": "*"
-    //  }, 
-        body: JSON.stringify('Hello from Lambda!'),
+        body: JSON.stringify(`Received a ${httpMethod} request!`),
     };
+
+    // Return crc token
+    if(httpMethod === 'GET') {
+        var crc_token = event.queryStringParameters.crc_token
+
+        if (crc_token) {
+          var hash = get_challenge_response(crc_token, auth.twitter_oauth.consumer_secret)
+      
+          response.statusCode = 200;
+          response.body = JSON.stringify({
+            response_token: 'sha256=' + hash
+          });
+        } else {
+          response.statusCode = 400;
+          response.body = JSON.stringify('Error: crc_token missing from request.');
+        }
+    }
+    
     return response;
-};
+}
