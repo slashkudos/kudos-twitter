@@ -8,6 +8,9 @@
     "build": "tsc -p ../tsconfig.json",
     "lint": "eslint '*.{js,ts,tsx}' --quiet --fix"
   },
+  "dependencies": {
+    "winston": "^3.3.3"
+  },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.89",
     "@types/node": "^14.18.3",

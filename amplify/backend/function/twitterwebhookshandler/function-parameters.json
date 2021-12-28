@@ -4,6 +4,10 @@
     {
       "cloudFormationParameterName": "twitterWebhookEnv",
       "environmentVariableName": "TWITTER_WEBHOOK_ENV"
+    },
+    {
+      "cloudFormationParameterName": "logLevel",
+      "environmentVariableName": "LOG_LEVEL"
     }
   ],
   "secretNames": [

@@ -1,4 +1,6 @@
 import * as aws from "aws-sdk";
+import * as winston from "winston";
+import { LoggerService } from "./LoggerService";
 
 export interface TwitterOAuth {
   apiKey: string;
@@ -12,13 +14,19 @@ export class ConfigService {
   public readonly twitterOAuth: TwitterOAuth;
 
   public readonly twitterWebhookEnvironment: string;
+  private readonly _logger: winston.Logger;
 
-  public constructor(oauth: TwitterOAuth, webhookEnvironment: string) {
+  public constructor(oauth: TwitterOAuth, webhookEnvironment: string, logger: winston.Logger) {
     this.twitterOAuth = oauth;
     this.twitterWebhookEnvironment = webhookEnvironment;
+    this._logger = logger;
   }
 
   static async build(): Promise<ConfigService> {
+    const logger = LoggerService.createLogger();
+    logger.debug("Building ConfigService");
+
+    logger.debug("Getting SSM secret parameters");
     const { Parameters } = await new aws.SSM()
       .getParameters({
         Names: ConfigService.SecretNames.map((secretName) => process.env[secretName]),
@@ -26,8 +34,17 @@ export class ConfigService {
       })
       .promise();
 
+    logger.debug(`Found ${Parameters.length}.`);
+
+    const secretPrefix = process.env.AWS_LAMBDA_FUNCTION_NAME + "_";
+    logger.debug(`Building secret dict, splitting on ${secretPrefix}`);
+
     const secretsDict = {};
-    Parameters.forEach((parm) => (secretsDict[parm.Name] = parm.Value));
+    Parameters.forEach((parm) => {
+      const name = parm.Name.split(secretPrefix)[1];
+      logger.debug(`Setting secret '${name}' (Full name: '${parm.Name}')`);
+      secretsDict[name] = parm.Value;
+    });
 
     const { apiKey, apiSecret, accessToken, accessTokenSecret } = {
       apiKey: secretsDict["TWITTER_CONSUMER_KEY"],
@@ -56,6 +73,6 @@ export class ConfigService {
     const twitterWebhookEnvironment = process.env.TWITTER_WEBHOOK_ENV;
     if (!twitterWebhookEnvironment)
       throw new Error("Required Twitter Webhook Environment is missing. Please set the TWITTER_WEBHOOK_ENV environment variable.");
-    return new ConfigService(twitterOAuth, twitterWebhookEnvironment);
+    return new ConfigService(twitterOAuth, twitterWebhookEnvironment, logger);
   }
 }

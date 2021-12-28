@@ -16,10 +16,13 @@
     "s3Key": {
       "Type": "String"
     },
+    "secretsPathAmplifyAppId": {
+      "Type": "String"
+    },
     "twitterWebhookEnv": {
       "Type": "String"
     },
-    "secretsPathAmplifyAppId": {
+    "logLevel": {
       "Type": "String"
     }
   },
@@ -75,9 +78,6 @@
             },
             "REGION": {
               "Ref": "AWS::Region"
-            },
-            "TWITTER_WEBHOOK_ENV": {
-              "Ref": "twitterWebhookEnv"
             },
             "TWITTER_CONSUMER_KEY": {
               "Fn::Join": [
@@ -166,6 +166,12 @@
                   "TWITTER_ACCESS_TOKEN_SECRET"
                 ]
               ]
+            },
+            "TWITTER_WEBHOOK_ENV": {
+              "Ref": "twitterWebhookEnv"
+            },
+            "LOG_LEVEL": {
+              "Ref": "logLevel"
             }
           }
         },

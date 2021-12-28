@@ -38,26 +38,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.ConfigService = void 0;
 var aws = require("aws-sdk");
+var LoggerService_1 = require("./LoggerService");
 var ConfigService = /** @class */ (function () {
-    function ConfigService(oauth, webhookEnvironment) {
+    function ConfigService(oauth, webhookEnvironment, logger) {
         this.twitterOAuth = oauth;
         this.twitterWebhookEnvironment = webhookEnvironment;
+        this._logger = logger;
     }
     ConfigService.build = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var Parameters, secretsDict, _a, apiKey, apiSecret, accessToken, accessTokenSecret, twitterOAuth, twitterWebhookEnvironment;
+            var logger, Parameters, secretPrefix, secretsDict, _a, apiKey, apiSecret, accessToken, accessTokenSecret, twitterOAuth, twitterWebhookEnvironment;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, new aws.SSM()
-                            .getParameters({
-                            Names: ConfigService.SecretNames.map(function (secretName) { return process.env[secretName]; }),
-                            WithDecryption: true
-                        })
-                            .promise()];
+                    case 0:
+                        logger = LoggerService_1.LoggerService.createLogger();
+                        logger.debug("Building ConfigService");
+                        logger.debug("Getting SSM secret parameters");
+                        return [4 /*yield*/, new aws.SSM()
+                                .getParameters({
+                                Names: ConfigService.SecretNames.map(function (secretName) { return process.env[secretName]; }),
+                                WithDecryption: true
+                            })
+                                .promise()];
                     case 1:
                         Parameters = (_b.sent()).Parameters;
+                        logger.debug("Found ".concat(Parameters.length, "."));
+                        secretPrefix = process.env.AWS_LAMBDA_FUNCTION_NAME + "_";
+                        logger.debug("Building secret dict, splitting on ".concat(secretPrefix));
                         secretsDict = {};
-                        Parameters.forEach(function (parm) { return (secretsDict[parm.Name] = parm.Value); });
+                        Parameters.forEach(function (parm) {
+                            var name = parm.Name.split(secretPrefix)[1];
+                            logger.debug("Setting secret '".concat(name, "' (Full name: '").concat(parm.Name, "')"));
+                            secretsDict[name] = parm.Value;
+                        });
                         _a = {
                             apiKey: secretsDict["TWITTER_CONSUMER_KEY"],
                             apiSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
@@ -85,7 +98,7 @@ var ConfigService = /** @class */ (function () {
                         twitterWebhookEnvironment = process.env.TWITTER_WEBHOOK_ENV;
                         if (!twitterWebhookEnvironment)
                             throw new Error("Required Twitter Webhook Environment is missing. Please set the TWITTER_WEBHOOK_ENV environment variable.");
-                        return [2 /*return*/, new ConfigService(twitterOAuth, twitterWebhookEnvironment)];
+                        return [2 /*return*/, new ConfigService(twitterOAuth, twitterWebhookEnvironment, logger)];
                 }
             });
         });

@@ -19,9 +19,10 @@
       "function": {
         "twitterwebhookshandler": {
           "deploymentBucketName": "amplify-kudostwitter-prod-51308-deployment",
-          "s3Key": "amplify-builds/twitterwebhookshandler-476c57655075364c4a76-build.zip",
+          "s3Key": "amplify-builds/twitterwebhookshandler-6f3032664f4e63322b58-build.zip",
+          "secretsPathAmplifyAppId": "d2uh7hyid0jaxm",
           "twitterWebhookEnv": "production",
-          "secretsPathAmplifyAppId": "d2uh7hyid0jaxm"
+          "logLevel": "debug"
         }
       }
     }
