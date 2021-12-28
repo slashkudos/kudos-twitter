@@ -6,8 +6,8 @@ import { get_challenge_response } from './security';
 export async function handler(event) {
     const httpMethod = event.httpMethod;
     const response = {
-        statusCode: 200,
-        body: JSON.stringify(`Received a ${httpMethod} request!`),
+        statusCode: 404,
+        body: JSON.stringify(`Received an unhandled ${httpMethod} request`),
     };
 
     // Return crc token
