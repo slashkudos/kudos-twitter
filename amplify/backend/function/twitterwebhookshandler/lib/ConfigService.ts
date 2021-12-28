@@ -36,8 +36,8 @@ export class ConfigService {
 
     logger.debug(`Found ${Parameters.length}.`);
 
-    const secretPrefix = process.env.AWS_LAMBDA_FUNCTION_NAME + "_";
-    logger.debug(`Building secret dict, splitting on ${secretPrefix}`);
+    const secretPrefix = `/AMPLIFY_${process.env.AWS_LAMBDA_FUNCTION_NAME.split("-")[0]}_`;
+    logger.debug(`Building secret dictionary, splitting on ${secretPrefix}`);
 
     const secretsDict = {};
     Parameters.forEach((parm) => {

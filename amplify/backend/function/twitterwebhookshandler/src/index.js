@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.handler = void 0;
 var ConfigService_1 = require("./ConfigService");
+var LoggerService_1 = require("./LoggerService");
 var SecurityService_1 = require("./SecurityService");
 // ANY http method to /webhooks will come here
 // See issue: https://github.com/aws-amplify/amplify-cli/issues/1232
@@ -45,7 +46,7 @@ var SecurityService_1 = require("./SecurityService");
 function handler(event) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var httpMethod, response, configService, crc_token, hash;
+        var httpMethod, response, logger, configService, crc_token, hash, message, error_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -54,11 +55,16 @@ function handler(event) {
                         statusCode: 404,
                         body: JSON.stringify("Received an unhandled ".concat(httpMethod, " request"))
                     };
-                    return [4 /*yield*/, ConfigService_1.ConfigService.build()];
+                    logger = LoggerService_1.LoggerService.createLogger();
+                    _b.label = 1;
                 case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ConfigService_1.ConfigService.build()];
+                case 2:
                     configService = _b.sent();
                     // Return crc token
                     if (httpMethod === "GET") {
+                        logger.info("Received GET request.\nWill return challenge response check (crc) token.");
                         crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
                         if (crc_token) {
                             hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.apiSecret, crc_token);
@@ -68,10 +74,19 @@ function handler(event) {
                             });
                         }
                         else {
+                            message = "crc_token missing from request.";
                             response.statusCode = 400;
-                            response.body = JSON.stringify("Error: crc_token missing from request.");
+                            response.body = JSON.stringify(message);
+                            logger.warn(message);
                         }
                     }
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_1 = _b.sent();
+                    logger.error(error_1.message || error_1);
+                    throw error_1;
+                case 4:
+                    logger.debug("Response:\n".concat(JSON.stringify(response)));
                     return [2 /*return*/, response];
             }
         });

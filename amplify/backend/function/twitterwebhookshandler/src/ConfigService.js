@@ -63,8 +63,8 @@ var ConfigService = /** @class */ (function () {
                     case 1:
                         Parameters = (_b.sent()).Parameters;
                         logger.debug("Found ".concat(Parameters.length, "."));
-                        secretPrefix = process.env.AWS_LAMBDA_FUNCTION_NAME + "_";
-                        logger.debug("Building secret dict, splitting on ".concat(secretPrefix));
+                        secretPrefix = "/AMPLIFY_".concat(process.env.AWS_LAMBDA_FUNCTION_NAME.split("-")[0], "_");
+                        logger.debug("Building secret dictionary, splitting on ".concat(secretPrefix));
                         secretsDict = {};
                         Parameters.forEach(function (parm) {
                             var name = parm.Name.split(secretPrefix)[1];
