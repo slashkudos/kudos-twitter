@@ -1,4 +1,4 @@
-// Adapted from https://github.com/twitterdev/account-activity-dashboard/blob/master/helpers/auth.js
+import * as aws from "aws-sdk";
 
 export interface TwitterOAuth {
   apiKey: string;
@@ -8,6 +8,7 @@ export interface TwitterOAuth {
 }
 
 export class ConfigService {
+  private static SecretNames = ["TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET", "TWITTER_ACCESS_TOKEN", "TWITTER_ACCESS_TOKEN_SECRET"];
   public readonly twitterOAuth: TwitterOAuth;
 
   public readonly twitterWebhookEnvironment: string;
@@ -17,12 +18,22 @@ export class ConfigService {
     this.twitterWebhookEnvironment = webhookEnvironment;
   }
 
-  static build(): ConfigService {
+  static async build(): Promise<ConfigService> {
+    const { Parameters } = await new aws.SSM()
+      .getParameters({
+        Names: ConfigService.SecretNames.map((secretName) => process.env[secretName]),
+        WithDecryption: true,
+      })
+      .promise();
+
+    const secretsDict = {};
+    Parameters.forEach((parm) => (secretsDict[parm.Name] = parm.Value));
+
     const { apiKey, apiSecret, accessToken, accessTokenSecret } = {
-      apiKey: process.env.TWITTER_CONSUMER_KEY,
-      apiSecret: process.env.TWITTER_CONSUMER_SECRET,
-      accessToken: process.env.TWITTER_ACCESS_TOKEN,
-      accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+      apiKey: secretsDict["TWITTER_CONSUMER_KEY"],
+      apiSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
+      accessToken: secretsDict["TWITTER_ACCESS_TOKEN"],
+      accessTokenSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"],
     };
     if (!apiKey) {
       throw new Error("Required Twitter API Key is missing. Please set the TWITTER_CONSUMER_KEY environment variable.");

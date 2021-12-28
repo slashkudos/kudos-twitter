@@ -15,6 +15,12 @@
     },
     "s3Key": {
       "Type": "String"
+    },
+    "twitterWebhookEnv": {
+      "Type": "String"
+    },
+    "secretsPathAmplifyAppId": {
+      "Type": "String"
     }
   },
   "Conditions": {
@@ -69,6 +75,97 @@
             },
             "REGION": {
               "Ref": "AWS::Region"
+            },
+            "TWITTER_WEBHOOK_ENV": {
+              "Ref": "twitterWebhookEnv"
+            },
+            "TWITTER_CONSUMER_KEY": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Sub": [
+                      "/amplify/${appId}/${env}/AMPLIFY_${functionName}_",
+                      {
+                        "appId": {
+                          "Ref": "secretsPathAmplifyAppId"
+                        },
+                        "env": {
+                          "Ref": "env"
+                        },
+                        "functionName": "twitterwebhookshandler"
+                      }
+                    ]
+                  },
+                  "TWITTER_CONSUMER_KEY"
+                ]
+              ]
+            },
+            "TWITTER_CONSUMER_SECRET": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Sub": [
+                      "/amplify/${appId}/${env}/AMPLIFY_${functionName}_",
+                      {
+                        "appId": {
+                          "Ref": "secretsPathAmplifyAppId"
+                        },
+                        "env": {
+                          "Ref": "env"
+                        },
+                        "functionName": "twitterwebhookshandler"
+                      }
+                    ]
+                  },
+                  "TWITTER_CONSUMER_SECRET"
+                ]
+              ]
+            },
+            "TWITTER_ACCESS_TOKEN": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Sub": [
+                      "/amplify/${appId}/${env}/AMPLIFY_${functionName}_",
+                      {
+                        "appId": {
+                          "Ref": "secretsPathAmplifyAppId"
+                        },
+                        "env": {
+                          "Ref": "env"
+                        },
+                        "functionName": "twitterwebhookshandler"
+                      }
+                    ]
+                  },
+                  "TWITTER_ACCESS_TOKEN"
+                ]
+              ]
+            },
+            "TWITTER_ACCESS_TOKEN_SECRET": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Sub": [
+                      "/amplify/${appId}/${env}/AMPLIFY_${functionName}_",
+                      {
+                        "appId": {
+                          "Ref": "secretsPathAmplifyAppId"
+                        },
+                        "env": {
+                          "Ref": "env"
+                        },
+                        "functionName": "twitterwebhookshandler"
+                      }
+                    ]
+                  },
+                  "TWITTER_ACCESS_TOKEN_SECRET"
+                ]
+              ]
             }
           }
         },
@@ -164,6 +261,63 @@
           ]
         }
       }
+    },
+    "AmplifyFunctionSecretsPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "amplify-function-secrets-policy",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters"
+              ],
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":parameter",
+                    {
+                      "Fn::Sub": [
+                        "/amplify/${appId}/${env}/AMPLIFY_${functionName}_",
+                        {
+                          "appId": {
+                            "Ref": "secretsPathAmplifyAppId"
+                          },
+                          "env": {
+                            "Ref": "env"
+                          },
+                          "functionName": "twitterwebhookshandler"
+                        }
+                      ]
+                    },
+                    "*"
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ]
     }
   },
   "Outputs": {

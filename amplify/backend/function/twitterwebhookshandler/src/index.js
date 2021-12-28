@@ -47,28 +47,33 @@ function handler(event) {
     return __awaiter(this, void 0, void 0, function () {
         var httpMethod, response, configService, crc_token, hash;
         return __generator(this, function (_b) {
-            httpMethod = event.httpMethod;
-            response = {
-                statusCode: 404,
-                body: JSON.stringify("Received an unhandled ".concat(httpMethod, " request"))
-            };
-            configService = ConfigService_1.ConfigService.build();
-            // Return crc token
-            if (httpMethod === "GET") {
-                crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
-                if (crc_token) {
-                    hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.apiSecret, crc_token);
-                    response.statusCode = 200;
-                    response.body = JSON.stringify({
-                        response_token: "sha256=" + hash
-                    });
-                }
-                else {
-                    response.statusCode = 400;
-                    response.body = JSON.stringify("Error: crc_token missing from request.");
-                }
+            switch (_b.label) {
+                case 0:
+                    httpMethod = event.httpMethod;
+                    response = {
+                        statusCode: 404,
+                        body: JSON.stringify("Received an unhandled ".concat(httpMethod, " request"))
+                    };
+                    return [4 /*yield*/, ConfigService_1.ConfigService.build()];
+                case 1:
+                    configService = _b.sent();
+                    // Return crc token
+                    if (httpMethod === "GET") {
+                        crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
+                        if (crc_token) {
+                            hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.apiSecret, crc_token);
+                            response.statusCode = 200;
+                            response.body = JSON.stringify({
+                                response_token: "sha256=" + hash
+                            });
+                        }
+                        else {
+                            response.statusCode = 400;
+                            response.body = JSON.stringify("Error: crc_token missing from request.");
+                        }
+                    }
+                    return [2 /*return*/, response];
             }
-            return [2 /*return*/, response];
         });
     });
 }

@@ -12,7 +12,7 @@ export async function handler(event: APIGatewayEvent) {
     body: JSON.stringify(`Received an unhandled ${httpMethod} request`),
   };
 
-  const configService = ConfigService.build();
+  const configService = await ConfigService.build();
 
   // Return crc token
   if (httpMethod === "GET") {
