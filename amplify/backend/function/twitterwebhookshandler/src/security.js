@@ -9,8 +9,6 @@ import { createHmac } from 'crypto'
  * @return string
  */
 export function get_challenge_response(crc_token, consumer_secret) {
-
-  hmac = createHmac('sha256', consumer_secret).update(crc_token).digest('base64')
-
+  const hmac = createHmac('sha256', consumer_secret).update(crc_token).digest('base64')
   return hmac
 }
