@@ -13,3 +13,4 @@ Param()
 
 # Clone helper twitter account-activity-dashboard tool
 gh repo clone twitterdev/account-activity-dashboard /workspaces/twitterdev-account-activity-dashboard
+cd /workspaces/twitterdev-account-activity-dashboard; npm i; cd -;
