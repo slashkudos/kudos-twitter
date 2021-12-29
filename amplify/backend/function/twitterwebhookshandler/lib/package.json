@@ -9,6 +9,7 @@
     "lint": "eslint '*.{js,ts,tsx}' --quiet --fix"
   },
   "dependencies": {
+    "twitter-api-v2": "^1.8.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {

@@ -3,10 +3,10 @@ import * as winston from "winston";
 import { LoggerService } from "./LoggerService";
 
 export interface TwitterOAuth {
-  apiKey: string;
-  apiSecret: string;
+  appKey: string;
+  appSecret: string;
   accessToken: string;
-  accessTokenSecret: string;
+  accessSecret: string;
 }
 
 export class ConfigService {
@@ -46,29 +46,29 @@ export class ConfigService {
       secretsDict[name] = parm.Value;
     });
 
-    const { apiKey, apiSecret, accessToken, accessTokenSecret } = {
-      apiKey: secretsDict["TWITTER_CONSUMER_KEY"],
-      apiSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
+    const { appKey, appSecret, accessToken, accessSecret } = {
+      appKey: secretsDict["TWITTER_CONSUMER_KEY"],
+      appSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
       accessToken: secretsDict["TWITTER_ACCESS_TOKEN"],
-      accessTokenSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"],
+      accessSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"],
     };
-    if (!apiKey) {
+    if (!appKey) {
       throw new Error("Required Twitter API Key is missing. Please set the TWITTER_CONSUMER_KEY environment variable.");
     }
-    if (!apiSecret) {
+    if (!appSecret) {
       throw new Error("Required Twitter API Secret is missing. Please set the TWITTER_CONSUMER_SECRET environment variable.");
     }
     if (!accessToken) {
       throw new Error("Required Twitter Access Token is missing. Please set the TWITTER_ACCESS_TOKEN environment variable.");
     }
-    if (!accessTokenSecret) {
+    if (!accessSecret) {
       throw new Error("Required Twitter Access Token Secret is missing. Please set the TWITTER_ACCESS_TOKEN_SECRET environment variable.");
     }
     const twitterOAuth: TwitterOAuth = {
-      apiKey: apiKey,
-      apiSecret: apiSecret,
+      appKey: appKey,
+      appSecret: appSecret,
       accessToken: accessToken,
-      accessTokenSecret: accessTokenSecret,
+      accessSecret: accessSecret,
     };
     const twitterWebhookEnvironment = process.env.TWITTER_WEBHOOK_ENV;
     if (!twitterWebhookEnvironment)
