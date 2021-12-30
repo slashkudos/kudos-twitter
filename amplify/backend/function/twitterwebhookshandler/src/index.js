@@ -48,19 +48,15 @@ var twitter_api_v2_1 = require("twitter-api-v2");
 function handler(event) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var httpMethod, response, logger, configService, crc_token, hash, message, body, message, client, homeTimeline, error_1;
+        var httpMethod, logger, configService, crc_token, hash, message_1, message_2, tweetCreateEvent, message_3, tweet, message_4, client, appUser_1, mentions, _i, mentions_1, mention, tweetResponse, message_5, error_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     httpMethod = event.httpMethod;
-                    response = {
-                        statusCode: 404,
-                        body: JSON.stringify("Received an unhandled ".concat(httpMethod, " request"))
-                    };
                     logger = LoggerService_1.LoggerService.createLogger();
                     _b.label = 1;
                 case 1:
-                    _b.trys.push([1, 6, , 7]);
+                    _b.trys.push([1, 10, , 11]);
                     return [4 /*yield*/, ConfigService_1.ConfigService.build()];
                 case 2:
                     configService = _b.sent();
@@ -69,47 +65,85 @@ function handler(event) {
                     crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
                     if (crc_token) {
                         hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.appSecret, crc_token);
-                        response.statusCode = 200;
-                        response.body = JSON.stringify({
+                        message_1 = JSON.stringify({
                             response_token: "sha256=" + hash
                         });
+                        logger.warn(message_1);
+                        return [2 /*return*/, {
+                                statusCode: 200,
+                                body: message_1
+                            }];
                     }
                     else {
-                        message = "crc_token missing from request.";
-                        response.statusCode = 400;
-                        response.body = JSON.stringify(message);
-                        logger.warn(message);
-                        return [2 /*return*/, response];
+                        message_2 = "crc_token missing from request.";
+                        logger.warn(message_2);
+                        return [2 /*return*/, {
+                                statusCode: 400,
+                                body: JSON.stringify(message_2)
+                            }];
                     }
-                    return [3 /*break*/, 5];
+                    return [3 /*break*/, 9];
                 case 3:
-                    if (!(httpMethod === "POST")) return [3 /*break*/, 5];
+                    if (!(httpMethod === "POST")) return [3 /*break*/, 9];
                     // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
                     logger.info("Received a POST request.");
-                    logger.debug("Event Body: ".concat(event.body));
-                    body = JSON.parse(event.body);
-                    if (!body || body.user_has_blocked == undefined) {
-                        message = "Tweet is not a @mention. Exiting.";
-                        response.statusCode = 200;
-                        response.body = JSON.stringify(message);
-                        logger.warn(message);
-                        return [2 /*return*/, response];
+                    logger.verbose("Request Body: ".concat(event.body));
+                    tweetCreateEvent = JSON.parse(event.body);
+                    if (!tweetCreateEvent || !tweetCreateEvent.tweet_create_events || tweetCreateEvent.user_has_blocked == undefined) {
+                        message_3 = "Tweet is not a @mention. Exiting.";
+                        logger.warn(message_3);
+                        return [2 /*return*/, {
+                                statusCode: 200,
+                                body: JSON.stringify(message_3)
+                            }];
+                    }
+                    tweet = tweetCreateEvent.tweet_create_events[0];
+                    if (!tweet.text.startsWith("/@slashkudos")) {
+                        message_4 = "Tweet is not someone giving someone Kudos. Exiting";
+                        logger.warn(message_4);
+                        return [2 /*return*/, {
+                                statusCode: 200,
+                                body: JSON.stringify(message_4)
+                            }];
                     }
                     client = new twitter_api_v2_1["default"](configService.twitterOAuth);
-                    return [4 /*yield*/, client.v1.homeTimeline()];
+                    return [4 /*yield*/, client.currentUser()];
                 case 4:
-                    homeTimeline = _b.sent();
-                    // Current page is in homeTimeline.tweets
-                    logger.info(homeTimeline.tweets.length + "fetched.");
+                    appUser_1 = _b.sent();
+                    mentions = tweet.entities.user_mentions.filter(function (mention) { return mention.id !== appUser_1.id; });
+                    _i = 0, mentions_1 = mentions;
                     _b.label = 5;
-                case 5: return [3 /*break*/, 7];
+                case 5:
+                    if (!(_i < mentions_1.length)) return [3 /*break*/, 8];
+                    mention = mentions_1[_i];
+                    tweetResponse = "\uD83C\uDF89 Congrats @".concat(mention.screen_name, "! You received Kudos from @").concat(tweet.user.screen_name, "! \uD83D\uDC96");
+                    logger.info("Replying to tweet (".concat(tweet.id_str, ") with \"").concat(tweetResponse, "\""));
+                    return [4 /*yield*/, client.v1.reply(tweetResponse, tweet.id_str)];
                 case 6:
+                    _b.sent();
+                    _b.label = 7;
+                case 7:
+                    _i++;
+                    return [3 /*break*/, 5];
+                case 8:
+                    message_5 = "Recorded Kudos and responded in a 🧵 on Twitter";
+                    logger.warn(message_5);
+                    return [2 /*return*/, {
+                            statusCode: 200,
+                            body: JSON.stringify(message_5)
+                        }];
+                case 9: return [3 /*break*/, 11];
+                case 10:
                     error_1 = _b.sent();
                     logger.error(error_1.message || error_1);
                     throw error_1;
-                case 7:
-                    logger.debug("Response:\n".concat(JSON.stringify(response)));
-                    return [2 /*return*/, response];
+                case 11:
+                    message = "Received an unhandled ".concat(httpMethod, " request.\n  Request Body: ").concat(event.body);
+                    logger.warn(message);
+                    return [2 /*return*/, {
+                            statusCode: 404,
+                            body: JSON.stringify(message)
+                        }];
             }
         });
     });

@@ -3,6 +3,7 @@ exports.__esModule = true;
 exports.LoggerService = void 0;
 var winston = require("winston");
 var logConfiguration = {
+    levels: winston.config.npm.levels,
     level: process.env.LOG_LEVEL || "debug",
     transports: [new winston.transports.Console()]
 };

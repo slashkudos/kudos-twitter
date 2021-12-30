@@ -352,21 +352,22 @@ export interface components {
     CashtagEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] & components["schemas"]["CashtagFields"];
     /** @description Represent the portion of text recognized as a User mention, and its start and end position within the text. */
     MentionFields: {
-      username: components["schemas"]["UserName"];
+      screen_name: components["schemas"]["UserName"];
       id: components["schemas"]["UserID"];
+      id_str: string;
     };
     MentionEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] & components["schemas"]["MentionFields"];
     FullTextEntities: {
       urls?: components["schemas"]["UrlEntity"][];
       hashtags?: components["schemas"]["HashtagEntity"][];
-      mentions?: components["schemas"]["MentionEntity"][];
+      user_mentions?: components["schemas"]["MentionEntity"][];
       cashtags?: components["schemas"]["CashtagEntity"][];
     };
     /**
      * @description Unique identifier of this Tweet. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.
      * @example 1346889436626259968
      */
-    TweetID: string;
+    TweetID: number;
     /**
      * @description The content of the Tweet.
      * @example Learn how to use the user Tweet timeline and user mention timeline endpoints in the Twitter API v2 to explore Tweet\u2026 https:\/\/t.co\/56a0vZUx7i
@@ -376,7 +377,7 @@ export interface components {
      * @description Unique identifier of this User. This is returned as a string in order to avoid complications with languages and tools that cannot handle large integers.
      * @example 2244994945
      */
-    UserID: string;
+    UserID: number;
     /**
      * @description The unique identifier of this Space.
      * @example 1SLjjRYNejbKM
@@ -399,6 +400,7 @@ export interface components {
     /** @example [object Object] */
     Tweet: {
       id: components["schemas"]["TweetID"];
+      id_str: string;
       /**
        * Format: date-time
        * @description Creation time of the Tweet.
@@ -408,6 +410,7 @@ export interface components {
       text: components["schemas"]["TweetText"];
       author_id?: components["schemas"]["UserID"];
       in_reply_to_user_id?: components["schemas"]["UserID"];
+      user?: components["schemas"]["User"];
       conversation_id?: components["schemas"]["TweetID"];
       reply_settings?: components["schemas"]["ReplySettings"];
       /** @description A list of Tweets this Tweet refers to. For example, if the parent Tweet is a Retweet, a Quoted Tweet or a Reply, it will include the related Tweet referenced to by its parent. */
@@ -506,7 +509,7 @@ export interface components {
       created_at?: string;
       /** @description The friendly name of this user, as shown on their profile. */
       name: string;
-      username: components["schemas"]["UserName"];
+      screen_name: components["schemas"]["UserName"];
       /** @description Indicates if this user has chosen to protect their Tweets (in other words, if this user's Tweets are private). */
       protected?: boolean;
       /** @description Indicate if this user is a verified Twitter User. */

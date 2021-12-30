@@ -12,10 +12,6 @@ import { TweetCreateEvent } from "./types/twitter-types";
 
 export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyResultV2> {
   const httpMethod = event.httpMethod;
-  const response = {
-    statusCode: 404,
-    body: JSON.stringify(`Received an unhandled ${httpMethod} request`),
-  };
   const logger = LoggerService.createLogger();
 
   try {
@@ -29,42 +25,77 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       if (crc_token) {
         const hash = SecurityService.get_challenge_response(configService.twitterOAuth.appSecret, crc_token);
 
-        response.statusCode = 200;
-        response.body = JSON.stringify({
+        const message = JSON.stringify({
           response_token: "sha256=" + hash,
         });
+        logger.warn(message);
+        return {
+          statusCode: 200,
+          body: message,
+        };
       } else {
         const message = "crc_token missing from request.";
-        response.statusCode = 400;
-        response.body = JSON.stringify(message);
         logger.warn(message);
-        return response;
+        return {
+          statusCode: 400,
+          body: JSON.stringify(message),
+        };
       }
     } else if (httpMethod === "POST") {
       // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
       logger.info("Received a POST request.");
-      logger.debug(`Event Body: ${event.body}`);
+      logger.verbose(`Request Body: ${event.body}`);
 
-      const body = JSON.parse(event.body) as TweetCreateEvent;
-      if (!body || body.user_has_blocked == undefined) {
+      const tweetCreateEvent = JSON.parse(event.body) as TweetCreateEvent;
+      if (!tweetCreateEvent || !tweetCreateEvent.tweet_create_events || tweetCreateEvent.user_has_blocked == undefined) {
         const message = "Tweet is not a @mention. Exiting.";
-        response.statusCode = 200;
-        response.body = JSON.stringify(message);
         logger.warn(message);
-        return response;
+        return {
+          statusCode: 200,
+          body: JSON.stringify(message),
+        };
+      }
+
+      const tweet = tweetCreateEvent.tweet_create_events[0];
+      if (!tweet.text.startsWith("/@slashkudos")) {
+        const message = "Tweet is not someone giving someone Kudos. Exiting";
+        logger.warn(message);
+        return {
+          statusCode: 200,
+          body: JSON.stringify(message),
+        };
       }
 
       const client = new TwitterApi(configService.twitterOAuth);
-      const homeTimeline = await client.v1.homeTimeline();
 
-      // Current page is in homeTimeline.tweets
-      logger.info(homeTimeline.tweets.length + " fetched.");
+      const appUser = await client.currentUser();
+      const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
+
+      for (const mention of mentions) {
+        // IMPORTANT: The user who created the original tweet must be mentioned in this reply
+        const tweetResponse = `🎉 Congrats @${mention.screen_name}! You received Kudos from @${tweet.user.screen_name}! 💖`;
+        logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
+        await client.v1.reply(tweetResponse, tweet.id_str);
+      }
+
+      const message = "Recorded Kudos and responded in a 🧵 on Twitter";
+      logger.warn(message);
+      return {
+        statusCode: 200,
+        body: JSON.stringify(message),
+      };
     }
   } catch (error) {
     logger.error(error.message || error);
     throw error;
   }
 
-  logger.debug(`Response:\n${JSON.stringify(response)}`);
-  return response;
+  const message = `Received an unhandled ${httpMethod} request.
+  Request Body: ${event.body}`;
+
+  logger.warn(message);
+  return {
+    statusCode: 404,
+    body: JSON.stringify(message),
+  };
 }
