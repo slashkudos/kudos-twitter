@@ -47,7 +47,7 @@ var ConfigService = /** @class */ (function () {
     }
     ConfigService.build = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var logger, Parameters, secretPrefix, secretsDict, _a, apiKey, apiSecret, accessToken, accessTokenSecret, twitterOAuth, twitterWebhookEnvironment;
+            var logger, Parameters, secretPrefix, secretsDict, _a, appKey, appSecret, accessToken, accessSecret, twitterOAuth, twitterWebhookEnvironment;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -72,28 +72,28 @@ var ConfigService = /** @class */ (function () {
                             secretsDict[name] = parm.Value;
                         });
                         _a = {
-                            apiKey: secretsDict["TWITTER_CONSUMER_KEY"],
-                            apiSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
+                            appKey: secretsDict["TWITTER_CONSUMER_KEY"],
+                            appSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
                             accessToken: secretsDict["TWITTER_ACCESS_TOKEN"],
-                            accessTokenSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"]
-                        }, apiKey = _a.apiKey, apiSecret = _a.apiSecret, accessToken = _a.accessToken, accessTokenSecret = _a.accessTokenSecret;
-                        if (!apiKey) {
+                            accessSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"]
+                        }, appKey = _a.appKey, appSecret = _a.appSecret, accessToken = _a.accessToken, accessSecret = _a.accessSecret;
+                        if (!appKey) {
                             throw new Error("Required Twitter API Key is missing. Please set the TWITTER_CONSUMER_KEY environment variable.");
                         }
-                        if (!apiSecret) {
+                        if (!appSecret) {
                             throw new Error("Required Twitter API Secret is missing. Please set the TWITTER_CONSUMER_SECRET environment variable.");
                         }
                         if (!accessToken) {
                             throw new Error("Required Twitter Access Token is missing. Please set the TWITTER_ACCESS_TOKEN environment variable.");
                         }
-                        if (!accessTokenSecret) {
+                        if (!accessSecret) {
                             throw new Error("Required Twitter Access Token Secret is missing. Please set the TWITTER_ACCESS_TOKEN_SECRET environment variable.");
                         }
                         twitterOAuth = {
-                            apiKey: apiKey,
-                            apiSecret: apiSecret,
+                            appKey: appKey,
+                            appSecret: appSecret,
                             accessToken: accessToken,
-                            accessTokenSecret: accessTokenSecret
+                            accessSecret: accessSecret
                         };
                         twitterWebhookEnvironment = process.env.TWITTER_WEBHOOK_ENV;
                         if (!twitterWebhookEnvironment)

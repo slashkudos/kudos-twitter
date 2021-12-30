@@ -40,13 +40,15 @@ exports.handler = void 0;
 var ConfigService_1 = require("./ConfigService");
 var LoggerService_1 = require("./LoggerService");
 var SecurityService_1 = require("./SecurityService");
+var twitter_api_v2_1 = require("twitter-api-v2");
 // ANY http method to /webhooks will come here
 // See issue: https://github.com/aws-amplify/amplify-cli/issues/1232
 // API Gateway Event format: https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html#apigateway-example-event
+// Twitter Activity API objects: https://developer.twitter.com/en/docs/twitter-api/premium/account-activity-api/guides/account-activity-data-objects
 function handler(event) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var httpMethod, response, logger, configService, crc_token, hash, message, error_1;
+        var httpMethod, response, logger, configService, crc_token, hash, message, body, message, client, homeTimeline, error_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -58,34 +60,54 @@ function handler(event) {
                     logger = LoggerService_1.LoggerService.createLogger();
                     _b.label = 1;
                 case 1:
-                    _b.trys.push([1, 3, , 4]);
+                    _b.trys.push([1, 6, , 7]);
                     return [4 /*yield*/, ConfigService_1.ConfigService.build()];
                 case 2:
                     configService = _b.sent();
-                    // Return crc token
-                    if (httpMethod === "GET") {
-                        logger.info("Received GET request.\nWill return challenge response check (crc) token.");
-                        crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
-                        if (crc_token) {
-                            hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.apiSecret, crc_token);
-                            response.statusCode = 200;
-                            response.body = JSON.stringify({
-                                response_token: "sha256=" + hash
-                            });
-                        }
-                        else {
-                            message = "crc_token missing from request.";
-                            response.statusCode = 400;
-                            response.body = JSON.stringify(message);
-                            logger.warn(message);
-                        }
+                    if (!(httpMethod === "GET")) return [3 /*break*/, 3];
+                    logger.info("Received GET request.\nWill return challenge response check (crc) token.");
+                    crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
+                    if (crc_token) {
+                        hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.appSecret, crc_token);
+                        response.statusCode = 200;
+                        response.body = JSON.stringify({
+                            response_token: "sha256=" + hash
+                        });
                     }
-                    return [3 /*break*/, 4];
+                    else {
+                        message = "crc_token missing from request.";
+                        response.statusCode = 400;
+                        response.body = JSON.stringify(message);
+                        logger.warn(message);
+                        return [2 /*return*/, response];
+                    }
+                    return [3 /*break*/, 5];
                 case 3:
+                    if (!(httpMethod === "POST")) return [3 /*break*/, 5];
+                    // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
+                    logger.info("Received a POST request.");
+                    logger.debug("Event Body: ".concat(event.body));
+                    body = JSON.parse(event.body);
+                    if (!body || body.user_has_blocked == undefined) {
+                        message = "Tweet is not a @mention. Exiting.";
+                        response.statusCode = 200;
+                        response.body = JSON.stringify(message);
+                        logger.warn(message);
+                        return [2 /*return*/, response];
+                    }
+                    client = new twitter_api_v2_1["default"](configService.twitterOAuth);
+                    return [4 /*yield*/, client.v1.homeTimeline()];
+                case 4:
+                    homeTimeline = _b.sent();
+                    // Current page is in homeTimeline.tweets
+                    logger.info(homeTimeline.tweets.length + "fetched.");
+                    _b.label = 5;
+                case 5: return [3 /*break*/, 7];
+                case 6:
                     error_1 = _b.sent();
                     logger.error(error_1.message || error_1);
                     throw error_1;
-                case 4:
+                case 7:
                     logger.debug("Response:\n".concat(JSON.stringify(response)));
                     return [2 /*return*/, response];
             }

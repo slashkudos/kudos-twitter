@@ -168,6 +168,11 @@ triple-beam@^1.2.0, triple-beam@^1.3.0:
   resolved "https://registry.yarnpkg.com/triple-beam/-/triple-beam-1.3.0.tgz#a595214c7298db8339eeeee083e4d10bd8cb8dd9"
   integrity sha512-XrHUvV5HpdLmIj4uVMxHggLbFSZYIn7HEWsqePZcI50pco+MPqJ50wMGY794X7AOOhxOBAjbkqfAbEe/QMp2Lw==
 
+twitter-api-v2@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/twitter-api-v2/-/twitter-api-v2-1.8.0.tgz#2671dde605c5de5efe29c7e6f9ff11b3fbe51f7b"
+  integrity sha512-aslxbzSf+i2bIRbH7RK4k3H2cU2KUHAxwoNlcYJkqq/sX+S2wocjP6olqcnReANylLGY4g3vqZMpnFC59jH3Eg==
+
 util-deprecate@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
