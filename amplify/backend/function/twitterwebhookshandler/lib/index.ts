@@ -4,42 +4,36 @@ import { LoggerService } from "./LoggerService";
 import { SecurityService } from "./SecurityService";
 import TwitterApi from "twitter-api-v2";
 import { TweetCreateEvent } from "./types/twitter-types";
+import { HttpStatus } from "aws-sdk/clients/lambda";
+import { LogLevel } from "./types/LogLevel";
 
-// ANY http method to /webhooks will come here
-// See issue: https://github.com/aws-amplify/amplify-cli/issues/1232
-// API Gateway Event format: https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html#apigateway-example-event
-// Twitter Activity API objects: https://developer.twitter.com/en/docs/twitter-api/premium/account-activity-api/guides/account-activity-data-objects
+interface createApiResultOptions {
+  logLevel?: LogLevel;
+  stringify?: boolean;
+}
+
+const logger = LoggerService.createLogger();
 
 export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyResultV2> {
   const httpMethod = event.httpMethod;
-  const logger = LoggerService.createLogger();
 
   try {
     const configService = await ConfigService.build();
 
-    // Return crc token
     if (httpMethod === "GET") {
-      logger.info("Received GET request.\nWill return challenge response check (crc) token.");
+      logger.info("Received GET request.");
       const crc_token = event?.queryStringParameters?.crc_token;
 
       if (crc_token) {
+        logger.info("Creating challenge response check (crc) hash.");
         const hash = SecurityService.get_challenge_response(configService.twitterOAuth.appSecret, crc_token);
 
-        const message = JSON.stringify({
+        const body = JSON.stringify({
           response_token: "sha256=" + hash,
         });
-        logger.warn(message);
-        return {
-          statusCode: 200,
-          body: message,
-        };
+        return createApiResult(body, 200, { stringify: false });
       } else {
-        const message = "crc_token missing from request.";
-        logger.warn(message);
-        return {
-          statusCode: 400,
-          body: JSON.stringify(message),
-        };
+        return createApiResult("crc_token missing from request.", 400);
       }
     } else if (httpMethod === "POST") {
       // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
@@ -48,42 +42,27 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
       const tweetCreateEvent = JSON.parse(event.body) as TweetCreateEvent;
       if (!tweetCreateEvent || !tweetCreateEvent.tweet_create_events || tweetCreateEvent.user_has_blocked == undefined) {
-        const message = "Tweet is not a @mention. Exiting.";
-        logger.warn(message);
-        return {
-          statusCode: 200,
-          body: JSON.stringify(message),
-        };
-      }
-
-      const tweet = tweetCreateEvent.tweet_create_events[0];
-      if (!tweet.text.startsWith("/@slashkudos")) {
-        const message = "Tweet is not someone giving someone Kudos. Exiting";
-        logger.warn(message);
-        return {
-          statusCode: 200,
-          body: JSON.stringify(message),
-        };
+        return createApiResult("Tweet is not a @mention. Exiting.", 200);
       }
 
       const client = new TwitterApi(configService.twitterOAuth);
-
       const appUser = await client.currentUser();
+      const appUserMentionStr = `@${appUser.screen_name}`;
+      const tweet = tweetCreateEvent.tweet_create_events[0];
+
+      // Skip if the tweet is a reply, or not for the app user, or doesn't start with @appUser
+      if (!tweet.text.startsWith(appUserMentionStr) || tweetCreateEvent.for_user_id !== appUser.id_str || tweet.in_reply_to_status_id) {
+        return createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
+      }
+
       const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
       for (const mention of mentions) {
-        // IMPORTANT: The user who created the original tweet must be mentioned in this reply
         const tweetResponse = `🎉 Congrats @${mention.screen_name}! You received Kudos from @${tweet.user.screen_name}! 💖`;
         logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
-        await client.v1.reply(tweetResponse, tweet.id_str);
+        await client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
       }
-
-      const message = "Recorded Kudos and responded in a 🧵 on Twitter";
-      logger.warn(message);
-      return {
-        statusCode: 200,
-        body: JSON.stringify(message),
-      };
+      return createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200);
     }
   } catch (error) {
     logger.error(error.message || error);
@@ -93,9 +72,17 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
   const message = `Received an unhandled ${httpMethod} request.
   Request Body: ${event.body}`;
 
-  logger.warn(message);
+  return createApiResult(message, 404);
+}
+
+function createApiResult(body: string, statusCode: HttpStatus, options?: createApiResultOptions): APIGatewayProxyResultV2 {
+  logger.verbose(`Entering createApiResult`);
+  const defaultOptions = { logLevel: "warn", stringify: true };
+  const mergedOptions = options ? { ...defaultOptions, ...options } : defaultOptions;
+  logger.debug(`createApiResult options: ${JSON.stringify(mergedOptions)}`);
+  logger.log(mergedOptions.logLevel, body);
   return {
-    statusCode: 404,
-    body: JSON.stringify(message),
+    statusCode: statusCode,
+    body: mergedOptions.stringify ? JSON.stringify(body) : body,
   };
 }

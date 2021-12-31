@@ -368,6 +368,7 @@ export interface components {
      * @example 1346889436626259968
      */
     TweetID: number;
+    TweetID_String: string;
     /**
      * @description The content of the Tweet.
      * @example Learn how to use the user Tweet timeline and user mention timeline endpoints in the Twitter API v2 to explore Tweet\u2026 https:\/\/t.co\/56a0vZUx7i
@@ -378,6 +379,7 @@ export interface components {
      * @example 2244994945
      */
     UserID: number;
+    UserID_String: string;
     /**
      * @description The unique identifier of this Space.
      * @example 1SLjjRYNejbKM
@@ -409,7 +411,10 @@ export interface components {
       created_at?: string;
       text: components["schemas"]["TweetText"];
       author_id?: components["schemas"]["UserID"];
+      in_reply_to_status_id?: components["schemas"]["TweetID"];
+      in_reply_to_status_id_str?: components["schemas"]["TweetID_String"];
       in_reply_to_user_id?: components["schemas"]["UserID"];
+      in_reply_to_user_id_str?: components["schemas"]["UserID_String"];
       user?: components["schemas"]["User"];
       conversation_id?: components["schemas"]["TweetID"];
       reply_settings?: components["schemas"]["ReplySettings"];
