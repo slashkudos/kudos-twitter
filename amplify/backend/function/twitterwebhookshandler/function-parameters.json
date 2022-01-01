@@ -8,12 +8,17 @@
     {
       "cloudFormationParameterName": "logLevel",
       "environmentVariableName": "LOG_LEVEL"
+    },
+    {
+      "cloudFormationParameterName": "kudosGraphqlEndpoint",
+      "environmentVariableName": "KUDOS_GRAPHQL_ENDPOINT"
     }
   ],
   "secretNames": [
     "TWITTER_CONSUMER_KEY",
     "TWITTER_CONSUMER_SECRET",
     "TWITTER_ACCESS_TOKEN",
-    "TWITTER_ACCESS_TOKEN_SECRET"
+    "TWITTER_ACCESS_TOKEN_SECRET",
+    "KUDOS_GRAPHQL_API_KEY"
   ]
 }

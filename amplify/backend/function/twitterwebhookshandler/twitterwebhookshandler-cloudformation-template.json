@@ -24,6 +24,9 @@
     },
     "logLevel": {
       "Type": "String"
+    },
+    "kudosGraphqlEndpoint": {
+      "Type": "String"
     }
   },
   "Conditions": {
@@ -172,6 +175,31 @@
             },
             "LOG_LEVEL": {
               "Ref": "logLevel"
+            },
+            "KUDOS_GRAPHQL_ENDPOINT": {
+              "Ref": "kudosGraphqlEndpoint"
+            },
+            "KUDOS_GRAPHQL_API_KEY": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Sub": [
+                      "/amplify/${appId}/${env}/AMPLIFY_${functionName}_",
+                      {
+                        "appId": {
+                          "Ref": "secretsPathAmplifyAppId"
+                        },
+                        "env": {
+                          "Ref": "env"
+                        },
+                        "functionName": "twitterwebhookshandler"
+                      }
+                    ]
+                  },
+                  "KUDOS_GRAPHQL_API_KEY"
+                ]
+              ]
             }
           }
         },

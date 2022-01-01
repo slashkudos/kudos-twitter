@@ -6,6 +6,7 @@ import TwitterApi from "twitter-api-v2";
 import { TweetCreateEvent } from "./types/twitter-types";
 import { HttpStatus } from "aws-sdk/clients/lambda";
 import { LogLevel } from "./types/LogLevel";
+import { KudosApiClient } from "./KudosApiClient";
 
 interface createApiResultOptions {
   logLevel?: LogLevel;
@@ -20,13 +21,17 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
   try {
     const configService = await ConfigService.build();
 
+    // FIXME - Remove this test
+    const kudosApiClient = await KudosApiClient.build(configService.kudosGraphQLConfig);
+    await kudosApiClient.listKudos();
+
     if (httpMethod === "GET") {
       logger.info("Received GET request.");
       const crc_token = event?.queryStringParameters?.crc_token;
 
       if (crc_token) {
         logger.info("Creating challenge response check (crc) hash.");
-        const hash = SecurityService.get_challenge_response(configService.twitterOAuth.appSecret, crc_token);
+        const hash = SecurityService.get_challenge_response(configService.twitterConfig.appSecret, crc_token);
 
         const body = JSON.stringify({
           response_token: "sha256=" + hash,
@@ -45,7 +50,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
         return createApiResult("Tweet is not a @mention. Exiting.", 200);
       }
 
-      const client = new TwitterApi(configService.twitterOAuth);
+      const client = new TwitterApi(configService.twitterConfig);
       const appUser = await client.currentUser();
       const appUserMentionStr = `@${appUser.screen_name}`;
       const tweet = tweetCreateEvent.tweet_create_events[0];

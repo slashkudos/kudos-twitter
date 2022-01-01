@@ -52,27 +52,34 @@ var ConfigService_1 = require("./ConfigService");
 var LoggerService_1 = require("./LoggerService");
 var SecurityService_1 = require("./SecurityService");
 var twitter_api_v2_1 = require("twitter-api-v2");
+var KudosApiClient_1 = require("./KudosApiClient");
 var logger = LoggerService_1.LoggerService.createLogger();
 function handler(event) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var httpMethod, configService, crc_token, hash, body, tweetCreateEvent, client, appUser_1, appUserMentionStr, tweet, mentions, _i, mentions_1, mention, tweetResponse, error_1, message;
+        var httpMethod, configService, kudosApiClient, crc_token, hash, body, tweetCreateEvent, client, appUser_1, appUserMentionStr, tweet, mentions, _i, mentions_1, mention, tweetResponse, error_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     httpMethod = event.httpMethod;
                     _b.label = 1;
                 case 1:
-                    _b.trys.push([1, 10, , 11]);
+                    _b.trys.push([1, 12, , 13]);
                     return [4 /*yield*/, ConfigService_1.ConfigService.build()];
                 case 2:
                     configService = _b.sent();
-                    if (!(httpMethod === "GET")) return [3 /*break*/, 3];
+                    return [4 /*yield*/, KudosApiClient_1.KudosApiClient.build(configService.kudosGraphQLConfig)];
+                case 3:
+                    kudosApiClient = _b.sent();
+                    return [4 /*yield*/, kudosApiClient.listKudos()];
+                case 4:
+                    _b.sent();
+                    if (!(httpMethod === "GET")) return [3 /*break*/, 5];
                     logger.info("Received GET request.");
                     crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
                     if (crc_token) {
                         logger.info("Creating challenge response check (crc) hash.");
-                        hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterOAuth.appSecret, crc_token);
+                        hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterConfig.appSecret, crc_token);
                         body = JSON.stringify({
                             response_token: "sha256=" + hash
                         });
@@ -81,9 +88,9 @@ function handler(event) {
                     else {
                         return [2 /*return*/, createApiResult("crc_token missing from request.", 400)];
                     }
-                    return [3 /*break*/, 9];
-                case 3:
-                    if (!(httpMethod === "POST")) return [3 /*break*/, 9];
+                    return [3 /*break*/, 11];
+                case 5:
+                    if (!(httpMethod === "POST")) return [3 /*break*/, 11];
                     // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
                     logger.info("Received a POST request.");
                     logger.verbose("Request Body: ".concat(event.body));
@@ -91,9 +98,9 @@ function handler(event) {
                     if (!tweetCreateEvent || !tweetCreateEvent.tweet_create_events || tweetCreateEvent.user_has_blocked == undefined) {
                         return [2 /*return*/, createApiResult("Tweet is not a @mention. Exiting.", 200)];
                     }
-                    client = new twitter_api_v2_1["default"](configService.twitterOAuth);
+                    client = new twitter_api_v2_1["default"](configService.twitterConfig);
                     return [4 /*yield*/, client.currentUser()];
-                case 4:
+                case 6:
                     appUser_1 = _b.sent();
                     appUserMentionStr = "@".concat(appUser_1.screen_name);
                     tweet = tweetCreateEvent.tweet_create_events[0];
@@ -103,26 +110,26 @@ function handler(event) {
                     }
                     mentions = tweet.entities.user_mentions.filter(function (mention) { return mention.id !== appUser_1.id; });
                     _i = 0, mentions_1 = mentions;
-                    _b.label = 5;
-                case 5:
-                    if (!(_i < mentions_1.length)) return [3 /*break*/, 8];
+                    _b.label = 7;
+                case 7:
+                    if (!(_i < mentions_1.length)) return [3 /*break*/, 10];
                     mention = mentions_1[_i];
                     tweetResponse = "\uD83C\uDF89 Congrats @".concat(mention.screen_name, "! You received Kudos from @").concat(tweet.user.screen_name, "! \uD83D\uDC96");
                     logger.info("Replying to tweet (".concat(tweet.id_str, ") with \"").concat(tweetResponse, "\""));
                     return [4 /*yield*/, client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true })];
-                case 6:
+                case 8:
                     _b.sent();
-                    _b.label = 7;
-                case 7:
+                    _b.label = 9;
+                case 9:
                     _i++;
-                    return [3 /*break*/, 5];
-                case 8: return [2 /*return*/, createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200)];
-                case 9: return [3 /*break*/, 11];
-                case 10:
+                    return [3 /*break*/, 7];
+                case 10: return [2 /*return*/, createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200)];
+                case 11: return [3 /*break*/, 13];
+                case 12:
                     error_1 = _b.sent();
                     logger.error(error_1.message || error_1);
                     throw error_1;
-                case 11:
+                case 13:
                     message = "Received an unhandled ".concat(httpMethod, " request.\n  Request Body: ").concat(event.body);
                     return [2 /*return*/, createApiResult(message, 404)];
             }

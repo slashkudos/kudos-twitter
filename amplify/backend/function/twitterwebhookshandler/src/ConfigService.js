@@ -40,16 +40,16 @@ exports.ConfigService = void 0;
 var aws = require("aws-sdk");
 var LoggerService_1 = require("./LoggerService");
 var ConfigService = /** @class */ (function () {
-    function ConfigService(oauth, webhookEnvironment, logger) {
-        this.twitterOAuth = oauth;
-        this.twitterWebhookEnvironment = webhookEnvironment;
-        this._logger = logger;
+    function ConfigService(twitterConfig, kudosGraphQLConfig, logger) {
+        this.twitterConfig = twitterConfig;
+        this.kudosGraphQLConfig = kudosGraphQLConfig;
+        this.logger = logger;
     }
     ConfigService.build = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var logger, Parameters, secretPrefix, secretsDict, _a, appKey, appSecret, accessToken, accessSecret, twitterOAuth, twitterWebhookEnvironment;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var logger, Parameters, secretPrefix, secretsDict, twitterConfig, kudosGraphQLConfig;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         logger = LoggerService_1.LoggerService.createLogger();
                         logger.debug("Building ConfigService");
@@ -61,7 +61,7 @@ var ConfigService = /** @class */ (function () {
                             })
                                 .promise()];
                     case 1:
-                        Parameters = (_b.sent()).Parameters;
+                        Parameters = (_a.sent()).Parameters;
                         logger.debug("Found ".concat(Parameters.length, "."));
                         secretPrefix = "/AMPLIFY_".concat(process.env.AWS_LAMBDA_FUNCTION_NAME.split("-")[0], "_");
                         logger.debug("Building secret dictionary, splitting on ".concat(secretPrefix));
@@ -71,39 +71,47 @@ var ConfigService = /** @class */ (function () {
                             logger.debug("Setting secret '".concat(name, "' (Full name: '").concat(parm.Name, "')"));
                             secretsDict[name] = parm.Value;
                         });
-                        _a = {
-                            appKey: secretsDict["TWITTER_CONSUMER_KEY"],
-                            appSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
-                            accessToken: secretsDict["TWITTER_ACCESS_TOKEN"],
-                            accessSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"]
-                        }, appKey = _a.appKey, appSecret = _a.appSecret, accessToken = _a.accessToken, accessSecret = _a.accessSecret;
-                        if (!appKey) {
-                            throw new Error("Required Twitter API Key is missing. Please set the TWITTER_CONSUMER_KEY environment variable.");
-                        }
-                        if (!appSecret) {
-                            throw new Error("Required Twitter API Secret is missing. Please set the TWITTER_CONSUMER_SECRET environment variable.");
-                        }
-                        if (!accessToken) {
-                            throw new Error("Required Twitter Access Token is missing. Please set the TWITTER_ACCESS_TOKEN environment variable.");
-                        }
-                        if (!accessSecret) {
-                            throw new Error("Required Twitter Access Token Secret is missing. Please set the TWITTER_ACCESS_TOKEN_SECRET environment variable.");
-                        }
-                        twitterOAuth = {
-                            appKey: appKey,
-                            appSecret: appSecret,
-                            accessToken: accessToken,
-                            accessSecret: accessSecret
+                        twitterConfig = ConfigService.getTwitterConfig(secretsDict);
+                        kudosGraphQLConfig = {
+                            ApiKey: secretsDict["KUDOS_GRAPHQL_API_KEY"],
+                            ApiUrl: process.env.KUDOS_GRAPHQL_ENDPOINT
                         };
-                        twitterWebhookEnvironment = process.env.TWITTER_WEBHOOK_ENV;
-                        if (!twitterWebhookEnvironment)
-                            throw new Error("Required Twitter Webhook Environment is missing. Please set the TWITTER_WEBHOOK_ENV environment variable.");
-                        return [2 /*return*/, new ConfigService(twitterOAuth, twitterWebhookEnvironment, logger)];
+                        return [2 /*return*/, new ConfigService(twitterConfig, kudosGraphQLConfig, logger)];
                 }
             });
         });
     };
-    ConfigService.SecretNames = ["TWITTER_CONSUMER_KEY", "TWITTER_CONSUMER_SECRET", "TWITTER_ACCESS_TOKEN", "TWITTER_ACCESS_TOKEN_SECRET"];
+    ConfigService.getTwitterConfig = function (secretsDict) {
+        var twitterConfig = {
+            appKey: secretsDict["TWITTER_CONSUMER_KEY"],
+            appSecret: secretsDict["TWITTER_CONSUMER_SECRET"],
+            accessToken: secretsDict["TWITTER_ACCESS_TOKEN"],
+            accessSecret: secretsDict["TWITTER_ACCESS_TOKEN_SECRET"],
+            webhookEnvironment: process.env.TWITTER_WEBHOOK_ENV
+        };
+        if (!twitterConfig.appKey) {
+            throw new Error("Required Twitter API Key is missing. Please set the TWITTER_CONSUMER_KEY environment variable.");
+        }
+        if (!twitterConfig.appSecret) {
+            throw new Error("Required Twitter API Secret is missing. Please set the TWITTER_CONSUMER_SECRET environment variable.");
+        }
+        if (!twitterConfig.accessToken) {
+            throw new Error("Required Twitter Access Token is missing. Please set the TWITTER_ACCESS_TOKEN environment variable.");
+        }
+        if (!twitterConfig.accessSecret) {
+            throw new Error("Required Twitter Access Token Secret is missing. Please set the TWITTER_ACCESS_TOKEN_SECRET environment variable.");
+        }
+        if (!twitterConfig.webhookEnvironment)
+            throw new Error("Required Twitter Webhook Environment is missing. Please set the TWITTER_WEBHOOK_ENV environment variable.");
+        return twitterConfig;
+    };
+    ConfigService.SecretNames = [
+        "KUDOS_GRAPHQL_API_KEY",
+        "TWITTER_ACCESS_TOKEN_SECRET",
+        "TWITTER_ACCESS_TOKEN",
+        "TWITTER_CONSUMER_KEY",
+        "TWITTER_CONSUMER_SECRET",
+    ];
     return ConfigService;
 }());
 exports.ConfigService = ConfigService;

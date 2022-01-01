@@ -9,6 +9,8 @@
     "lint": "eslint '*.{js,ts,tsx}' --quiet --fix"
   },
   "dependencies": {
+    "graphql": "^16.2.0",
+    "graphql-request": "^3.7.0",
     "twitter-api-v2": "^1.8.0",
     "winston": "^3.3.3"
   },
