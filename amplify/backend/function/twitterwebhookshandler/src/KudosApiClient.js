@@ -1,7 +1,14 @@
 "use strict";
-var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cooked, raw) {
-    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-    return cooked;
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -42,24 +49,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.KudosApiClient = void 0;
 var graphql_request_1 = require("graphql-request");
+var API_1 = require("./kudos-api/API");
+var mutations_1 = require("./kudos-api/graphql/mutations");
+var queries_1 = require("./kudos-api/graphql/queries");
 var LoggerService_1 = require("./LoggerService");
 var KudosApiClient = /** @class */ (function () {
     function KudosApiClient(kudosGraphQLConfig) {
-        var _this = this;
-        this.listKudos = function () { return __awaiter(_this, void 0, void 0, function () {
-            var query, data;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        query = (0, graphql_request_1.gql)(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n      {\n        listKudos {\n          items {\n            id\n            receiver {\n              email\n              username\n            }\n            giver {\n              username\n              email\n            }\n            createdAt\n            kudoVerb\n          }\n        }\n      }\n    "], ["\n      {\n        listKudos {\n          items {\n            id\n            receiver {\n              email\n              username\n            }\n            giver {\n              username\n              email\n            }\n            createdAt\n            kudoVerb\n          }\n        }\n      }\n    "])));
-                        return [4 /*yield*/, this.graphQLClient.request(query)];
-                    case 1:
-                        data = _a.sent();
-                        this.logger.debug(JSON.stringify(data, undefined, 2));
-                        return [2 /*return*/];
-                }
-            });
-        }); };
         this.logger = LoggerService_1.LoggerService.createLogger();
         this.graphQLClient = new graphql_request_1.GraphQLClient(kudosGraphQLConfig.ApiUrl, {
             headers: {
@@ -74,7 +69,126 @@ var KudosApiClient = /** @class */ (function () {
             });
         });
     };
+    KudosApiClient.prototype.createKudo = function (giverUsername, receiverUsername, message) {
+        return __awaiter(this, void 0, void 0, function () {
+            var giver, receiver, kudo;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.logger.info("Creating Kudo from ".concat(giverUsername, " to ").concat(receiverUsername, " with message \"").concat(message, "\""));
+                        return [4 /*yield*/, this.getUser(giverUsername)];
+                    case 1:
+                        giver = _a.sent();
+                        if (!!giver) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.createPerson({ input: { username: giverUsername, dataSourceApp: API_1.DataSourceApp.twitter } })];
+                    case 2:
+                        giver = _a.sent();
+                        _a.label = 3;
+                    case 3: return [4 /*yield*/, this.getUser(receiverUsername)];
+                    case 4:
+                        receiver = _a.sent();
+                        if (!!receiver) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.createPerson({ input: { username: receiverUsername, dataSourceApp: API_1.DataSourceApp.twitter } })];
+                    case 5:
+                        receiver = _a.sent();
+                        _a.label = 6;
+                    case 6: return [4 /*yield*/, this.sendCreateKudoRequest({
+                            input: { giverId: giver.id, receiverId: receiver.id, message: message, dataSourceApp: API_1.DataSourceApp.twitter, kudoVerb: API_1.KudoVerb.kudos }
+                        })];
+                    case 7:
+                        kudo = _a.sent();
+                        return [2 /*return*/, { kudo: kudo, receiver: kudo.receiver }];
+                }
+            });
+        });
+    };
+    KudosApiClient.prototype.sendCreateKudoRequest = function (mutationVariables) {
+        return __awaiter(this, void 0, void 0, function () {
+            var input, rawResponse, createKudoResponse, kudo;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.logger.info("Sending create kudo request");
+                        input = __assign(__assign({}, mutationVariables.input), { dataSourceApp: API_1.DataSourceApp.twitter, kudoVerb: API_1.KudoVerb.kudos });
+                        return [4 /*yield*/, this.graphQLClient.request(mutations_1.createKudo, __assign(__assign({}, mutationVariables), { input: input }))];
+                    case 1:
+                        rawResponse = _a.sent();
+                        this.logger.http(JSON.stringify(rawResponse));
+                        createKudoResponse = rawResponse;
+                        if (!createKudoResponse) {
+                            throw new Error("Expected a CreateKudoMutation response from createKudo");
+                        }
+                        kudo = createKudoResponse.createKudo;
+                        this.logger.info("Created Kudo ".concat(kudo.id));
+                        return [2 /*return*/, kudo];
+                }
+            });
+        });
+    };
+    KudosApiClient.prototype.createPerson = function (mutationVariables) {
+        return __awaiter(this, void 0, void 0, function () {
+            var input, rawResponse, createPersonResponse, person;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.logger.info("Creating a person with the username ".concat(mutationVariables.input.username));
+                        input = __assign(__assign({}, mutationVariables.input), { dataSourceApp: API_1.DataSourceApp.twitter });
+                        return [4 /*yield*/, this.graphQLClient.request(mutations_1.createPerson, __assign(__assign({}, mutationVariables), { input: input }))];
+                    case 1:
+                        rawResponse = _a.sent();
+                        this.logger.http(JSON.stringify(rawResponse));
+                        createPersonResponse = rawResponse;
+                        if (!createPersonResponse) {
+                            throw new Error("Expected a CreatePersonMutation response from createPerson");
+                        }
+                        person = createPersonResponse.createPerson;
+                        return [2 /*return*/, person];
+                }
+            });
+        });
+    };
+    KudosApiClient.prototype.listPeople = function (queryVariables) {
+        return __awaiter(this, void 0, void 0, function () {
+            var rawResponse, listPersonsResponse, modelPersonConnection;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.graphQLClient.request(queries_1.listPersons, queryVariables)];
+                    case 1:
+                        rawResponse = _a.sent();
+                        this.logger.http(JSON.stringify(rawResponse));
+                        listPersonsResponse = rawResponse;
+                        if (!listPersonsResponse) {
+                            throw new Error("Expected a ListPersonsQuery response from listPersons");
+                        }
+                        modelPersonConnection = listPersonsResponse.listPersons;
+                        return [2 /*return*/, modelPersonConnection];
+                }
+            });
+        });
+    };
+    KudosApiClient.prototype.getUser = function (username) {
+        return __awaiter(this, void 0, void 0, function () {
+            var peopleResponse, people, person;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.logger.info("Getting user for username ".concat(username));
+                        return [4 /*yield*/, this.listPeople({ filter: { username: { eq: username }, dataSourceApp: { eq: API_1.DataSourceApp.twitter } } })];
+                    case 1:
+                        peopleResponse = _a.sent();
+                        people = peopleResponse.items;
+                        this.logger.info("Found ".concat(people.length, " users"));
+                        if (people.length === 0) {
+                            return [2 /*return*/, null];
+                        }
+                        // Sort the array to get the newest (just in case there are more than 1)
+                        people.sort(function (a, b) { return Date.parse(a.createdAt) - Date.parse(b.createdAt); });
+                        person = people[0];
+                        return [2 /*return*/, person];
+                }
+            });
+        });
+    };
     return KudosApiClient;
 }());
 exports.KudosApiClient = KudosApiClient;
-var templateObject_1;

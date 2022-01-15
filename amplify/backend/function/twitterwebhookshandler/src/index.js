@@ -57,24 +57,21 @@ var logger = LoggerService_1.LoggerService.createLogger();
 function handler(event) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var httpMethod, configService, kudosApiClient, crc_token, hash, body, tweetCreateEvent, client, appUser_1, appUserMentionStr, tweet, mentions, _i, mentions_1, mention, tweetResponse, error_1, message;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var httpMethod, configService, kudosApiClient, crc_token, hash, body, tweetCreateEvent, client, appUser_1, appUserMentionStr, tweet, mentions, kudosCache, _i, mentions_1, mention, _b, giverUsername, receiverUsername, receiver, tweetResponse, error_1, error_2, message;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
                     httpMethod = event.httpMethod;
-                    _b.label = 1;
+                    _c.label = 1;
                 case 1:
-                    _b.trys.push([1, 12, , 13]);
+                    _c.trys.push([1, 14, , 15]);
                     return [4 /*yield*/, ConfigService_1.ConfigService.build()];
                 case 2:
-                    configService = _b.sent();
+                    configService = _c.sent();
                     return [4 /*yield*/, KudosApiClient_1.KudosApiClient.build(configService.kudosGraphQLConfig)];
                 case 3:
-                    kudosApiClient = _b.sent();
-                    return [4 /*yield*/, kudosApiClient.listKudos()];
-                case 4:
-                    _b.sent();
-                    if (!(httpMethod === "GET")) return [3 /*break*/, 5];
+                    kudosApiClient = _c.sent();
+                    if (!(httpMethod === "GET")) return [3 /*break*/, 4];
                     logger.info("Received GET request.");
                     crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
                     if (crc_token) {
@@ -88,9 +85,9 @@ function handler(event) {
                     else {
                         return [2 /*return*/, createApiResult("crc_token missing from request.", 400)];
                     }
-                    return [3 /*break*/, 11];
-                case 5:
-                    if (!(httpMethod === "POST")) return [3 /*break*/, 11];
+                    return [3 /*break*/, 13];
+                case 4:
+                    if (!(httpMethod === "POST")) return [3 /*break*/, 13];
                     // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
                     logger.info("Received a POST request.");
                     logger.verbose("Request Body: ".concat(event.body));
@@ -100,8 +97,8 @@ function handler(event) {
                     }
                     client = new twitter_api_v2_1["default"](configService.twitterConfig);
                     return [4 /*yield*/, client.currentUser()];
-                case 6:
-                    appUser_1 = _b.sent();
+                case 5:
+                    appUser_1 = _c.sent();
                     appUserMentionStr = "@".concat(appUser_1.screen_name);
                     tweet = tweetCreateEvent.tweet_create_events[0];
                     // Skip if the tweet is a reply, or not for the app user, or doesn't start with @appUser
@@ -109,27 +106,42 @@ function handler(event) {
                         return [2 /*return*/, createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200)];
                     }
                     mentions = tweet.entities.user_mentions.filter(function (mention) { return mention.id !== appUser_1.id; });
+                    kudosCache = {};
                     _i = 0, mentions_1 = mentions;
-                    _b.label = 7;
-                case 7:
-                    if (!(_i < mentions_1.length)) return [3 /*break*/, 10];
+                    _c.label = 6;
+                case 6:
+                    if (!(_i < mentions_1.length)) return [3 /*break*/, 12];
                     mention = mentions_1[_i];
-                    tweetResponse = "\uD83C\uDF89 Congrats @".concat(mention.screen_name, "! You received Kudos from @").concat(tweet.user.screen_name, "! \uD83D\uDC96");
+                    _c.label = 7;
+                case 7:
+                    _c.trys.push([7, 10, , 11]);
+                    _b = { giverUsername: tweet.user.screen_name, receiverUsername: mention.screen_name }, giverUsername = _b.giverUsername, receiverUsername = _b.receiverUsername;
+                    if (kudosCache[receiverUsername])
+                        return [3 /*break*/, 11];
+                    kudosCache[receiverUsername] = true;
+                    return [4 /*yield*/, kudosApiClient.createKudo(giverUsername, receiverUsername, tweet.text)];
+                case 8:
+                    receiver = (_c.sent()).receiver;
+                    tweetResponse = "Congrats @".concat(receiverUsername, ", you received Kudos from @").concat(giverUsername, "! You now have ").concat(receiver.kudosReceived.items.length, " points \uD83C\uDF89 \uD83D\uDC96");
                     logger.info("Replying to tweet (".concat(tweet.id_str, ") with \"").concat(tweetResponse, "\""));
                     return [4 /*yield*/, client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true })];
-                case 8:
-                    _b.sent();
-                    _b.label = 9;
                 case 9:
-                    _i++;
-                    return [3 /*break*/, 7];
-                case 10: return [2 /*return*/, createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200)];
-                case 11: return [3 /*break*/, 13];
-                case 12:
-                    error_1 = _b.sent();
+                    _c.sent();
+                    return [3 /*break*/, 11];
+                case 10:
+                    error_1 = _c.sent();
                     logger.error(error_1.message || error_1);
-                    throw error_1;
-                case 13:
+                    return [3 /*break*/, 11];
+                case 11:
+                    _i++;
+                    return [3 /*break*/, 6];
+                case 12: return [2 /*return*/, createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200)];
+                case 13: return [3 /*break*/, 15];
+                case 14:
+                    error_2 = _c.sent();
+                    logger.error(error_2.message || error_2);
+                    throw error_2;
+                case 15:
                     message = "Received an unhandled ".concat(httpMethod, " request.\n  Request Body: ").concat(event.body);
                     return [2 /*return*/, createApiResult(message, 404)];
             }

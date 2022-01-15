@@ -20,10 +20,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
   try {
     const configService = await ConfigService.build();
-
-    // FIXME - Remove this test
     const kudosApiClient = await KudosApiClient.build(configService.kudosGraphQLConfig);
-    await kudosApiClient.listKudos();
 
     if (httpMethod === "GET") {
       logger.info("Received GET request.");
@@ -61,11 +58,25 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       }
 
       const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
+      const kudosCache = {};
 
       for (const mention of mentions) {
-        const tweetResponse = `🎉 Congrats @${mention.screen_name}! You received Kudos from @${tweet.user.screen_name}! 💖`;
-        logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
-        await client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
+        try {
+          const { giverUsername, receiverUsername } = { giverUsername: tweet.user.screen_name, receiverUsername: mention.screen_name };
+          if (kudosCache[receiverUsername]) continue;
+          kudosCache[receiverUsername] = true;
+
+          const { receiver } = await kudosApiClient.createKudo(giverUsername, receiverUsername, tweet.text);
+
+          // TODO Optimize getting total kudos received
+          // FIXME Items is most likely paginated so will not be the total count
+          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${receiver.kudosReceived.items.length} points 🎉 💖`;
+          logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
+
+          await client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
+        } catch (error) {
+          logger.error(error.message || error);
+        }
       }
       return createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200);
     }
