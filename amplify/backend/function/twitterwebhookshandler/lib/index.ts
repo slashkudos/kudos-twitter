@@ -16,6 +16,7 @@ interface createApiResultOptions {
 const logger = LoggerService.createLogger();
 
 export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyResultV2> {
+  logger.http(`Received event: ${JSON.stringify(event)}`);
   const httpMethod = event.httpMethod;
 
   try {
@@ -28,10 +29,10 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
       if (crc_token) {
         logger.info("Creating challenge response check (crc) hash.");
-        const hash = SecurityService.get_challenge_response(configService.twitterConfig.appSecret, crc_token);
+        const hashSignature = SecurityService.getHashSignature(configService.twitterConfig.appSecret, crc_token);
 
         const body = JSON.stringify({
-          response_token: "sha256=" + hash,
+          response_token: hashSignature,
         });
         return createApiResult(body, 200, { stringify: false });
       } else {
@@ -40,7 +41,17 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
     } else if (httpMethod === "POST") {
       // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
       logger.info("Received a POST request.");
-      logger.verbose(`Request Body: ${event.body}`);
+
+      logger.info("Validating X-Twitter-Webhooks-Signature header.");
+      const calculatedSignature = SecurityService.getHashSignature(configService.twitterConfig.appSecret, event.body);
+      const webhookSignature = event.headers["X-Twitter-Webhooks-Signature"];
+
+      if (calculatedSignature !== webhookSignature) {
+        logger.debug(`Webhook Signature: ${webhookSignature}`);
+        logger.debug(`Server-side Calculated Signature: ${calculatedSignature}`);
+        return createApiResult("Unathorized. POST request is not originating from Twitter.", 403);
+      }
+      logger.info("Validated the request is coming from Twitter.");
 
       const tweetCreateEvent = JSON.parse(event.body) as TweetCreateEvent;
       if (!tweetCreateEvent || !tweetCreateEvent.tweet_create_events || tweetCreateEvent.user_has_blocked == undefined) {
@@ -51,13 +62,18 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       const appUser = await client.currentUser();
       const appUserMentionStr = `@${appUser.screen_name}`;
       const tweet = tweetCreateEvent.tweet_create_events[0];
+      const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
       // Skip if the tweet is a reply, or not for the app user, or doesn't start with @appUser
-      if (!tweet.text.startsWith(appUserMentionStr) || tweetCreateEvent.for_user_id !== appUser.id_str || tweet.in_reply_to_status_id) {
+      if (
+        !tweet.text.startsWith(appUserMentionStr) ||
+        tweetCreateEvent.for_user_id !== appUser.id_str ||
+        tweet.in_reply_to_status_id ||
+        mentions.length === 0
+      ) {
         return createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
       }
 
-      const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
       const kudosCache = {};
 
       for (const mention of mentions) {

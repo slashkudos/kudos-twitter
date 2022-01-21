@@ -9,8 +9,9 @@ export class SecurityService {
    * @param  token  the token provided by the incoming GET request
    * @return string
    */
-  static get_challenge_response = function (apiSecret: string, crcToken: string) {
-    const hmac = createHmac("sha256", apiSecret).update(crcToken).digest("base64");
-    return hmac;
+  static getHashSignature = function (apiSecret: string, body: string): string {
+    const hmacHash = createHmac("sha256", apiSecret).update(body).digest("base64");
+    const signature = "sha256=" + hmacHash;
+    return signature;
   };
 }

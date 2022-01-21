@@ -57,10 +57,11 @@ var logger = LoggerService_1.LoggerService.createLogger();
 function handler(event) {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var httpMethod, configService, kudosApiClient, crc_token, hash, body, tweetCreateEvent, client, appUser_1, appUserMentionStr, tweet, mentions, kudosCache, _i, mentions_1, mention, _b, giverUsername, receiverUsername, receiver, tweetResponse, error_1, error_2, message;
+        var httpMethod, configService, kudosApiClient, crc_token, hashSignature, body, calculatedSignature, webhookSignature, tweetCreateEvent, client, appUser_1, appUserMentionStr, tweet, mentions, kudosCache, _i, mentions_1, mention, _b, giverUsername, receiverUsername, receiver, tweetResponse, error_1, error_2, message;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
+                    logger.http("Received event: ".concat(JSON.stringify(event)));
                     httpMethod = event.httpMethod;
                     _c.label = 1;
                 case 1:
@@ -76,9 +77,9 @@ function handler(event) {
                     crc_token = (_a = event === null || event === void 0 ? void 0 : event.queryStringParameters) === null || _a === void 0 ? void 0 : _a.crc_token;
                     if (crc_token) {
                         logger.info("Creating challenge response check (crc) hash.");
-                        hash = SecurityService_1.SecurityService.get_challenge_response(configService.twitterConfig.appSecret, crc_token);
+                        hashSignature = SecurityService_1.SecurityService.getHashSignature(configService.twitterConfig.appSecret, crc_token);
                         body = JSON.stringify({
-                            response_token: "sha256=" + hash
+                            response_token: hashSignature
                         });
                         return [2 /*return*/, createApiResult(body, 200, { stringify: false })];
                     }
@@ -90,7 +91,15 @@ function handler(event) {
                     if (!(httpMethod === "POST")) return [3 /*break*/, 13];
                     // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
                     logger.info("Received a POST request.");
-                    logger.verbose("Request Body: ".concat(event.body));
+                    logger.info("Validating X-Twitter-Webhooks-Signature header.");
+                    calculatedSignature = SecurityService_1.SecurityService.getHashSignature(configService.twitterConfig.appSecret, event.body);
+                    webhookSignature = event.headers["X-Twitter-Webhooks-Signature"];
+                    if (calculatedSignature !== webhookSignature) {
+                        logger.debug("Webhook Signature: ".concat(webhookSignature));
+                        logger.debug("Server-side Calculated Signature: ".concat(calculatedSignature));
+                        return [2 /*return*/, createApiResult("Unathorized. POST request is not originating from Twitter.", 403)];
+                    }
+                    logger.info("Validated the request is coming from Twitter.");
                     tweetCreateEvent = JSON.parse(event.body);
                     if (!tweetCreateEvent || !tweetCreateEvent.tweet_create_events || tweetCreateEvent.user_has_blocked == undefined) {
                         return [2 /*return*/, createApiResult("Tweet is not a @mention. Exiting.", 200)];
@@ -101,11 +110,14 @@ function handler(event) {
                     appUser_1 = _c.sent();
                     appUserMentionStr = "@".concat(appUser_1.screen_name);
                     tweet = tweetCreateEvent.tweet_create_events[0];
+                    mentions = tweet.entities.user_mentions.filter(function (mention) { return mention.id !== appUser_1.id; });
                     // Skip if the tweet is a reply, or not for the app user, or doesn't start with @appUser
-                    if (!tweet.text.startsWith(appUserMentionStr) || tweetCreateEvent.for_user_id !== appUser_1.id_str || tweet.in_reply_to_status_id) {
+                    if (!tweet.text.startsWith(appUserMentionStr) ||
+                        tweetCreateEvent.for_user_id !== appUser_1.id_str ||
+                        tweet.in_reply_to_status_id ||
+                        mentions.length === 0) {
                         return [2 /*return*/, createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200)];
                     }
-                    mentions = tweet.entities.user_mentions.filter(function (mention) { return mention.id !== appUser_1.id; });
                     kudosCache = {};
                     _i = 0, mentions_1 = mentions;
                     _c.label = 6;

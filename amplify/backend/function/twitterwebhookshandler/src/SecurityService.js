@@ -12,9 +12,10 @@ var SecurityService = /** @class */ (function () {
      * @param  token  the token provided by the incoming GET request
      * @return string
      */
-    SecurityService.get_challenge_response = function (apiSecret, crcToken) {
-        var hmac = (0, crypto_1.createHmac)("sha256", apiSecret).update(crcToken).digest("base64");
-        return hmac;
+    SecurityService.getHashSignature = function (apiSecret, body) {
+        var hmacHash = (0, crypto_1.createHmac)("sha256", apiSecret).update(body).digest("base64");
+        var signature = "sha256=" + hmacHash;
+        return signature;
     };
     return SecurityService;
 }());
