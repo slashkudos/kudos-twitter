@@ -69,9 +69,9 @@ var KudosApiClient = /** @class */ (function () {
             });
         });
     };
-    KudosApiClient.prototype.createKudo = function (giverUsername, receiverUsername, message) {
+    KudosApiClient.prototype.createKudo = function (giverUsername, receiverUsername, message, tweetId) {
         return __awaiter(this, void 0, void 0, function () {
-            var giver, receiver, kudo;
+            var giver, receiver, tweetUrl, kudo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -92,9 +92,18 @@ var KudosApiClient = /** @class */ (function () {
                     case 5:
                         receiver = _a.sent();
                         _a.label = 6;
-                    case 6: return [4 /*yield*/, this.sendCreateKudoRequest({
-                            input: { giverId: giver.id, receiverId: receiver.id, message: message, dataSourceApp: API_1.DataSourceApp.twitter, kudoVerb: API_1.KudoVerb.kudos }
-                        })];
+                    case 6:
+                        tweetUrl = "https://twitter.com/".concat(giverUsername, "/status/").concat(tweetId);
+                        return [4 /*yield*/, this.sendCreateKudoRequest({
+                                input: {
+                                    giverId: giver.id,
+                                    receiverId: receiver.id,
+                                    message: message,
+                                    link: tweetUrl,
+                                    dataSourceApp: API_1.DataSourceApp.twitter,
+                                    kudoVerb: API_1.KudoVerb.kudos
+                                }
+                            })];
                     case 7:
                         kudo = _a.sent();
                         return [2 /*return*/, { kudo: kudo, receiver: kudo.receiver }];

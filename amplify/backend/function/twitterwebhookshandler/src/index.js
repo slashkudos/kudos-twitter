@@ -131,7 +131,7 @@ function handler(event) {
                     if (kudosCache[receiverUsername])
                         return [3 /*break*/, 11];
                     kudosCache[receiverUsername] = true;
-                    return [4 /*yield*/, kudosApiClient.createKudo(giverUsername, receiverUsername, tweet.text)];
+                    return [4 /*yield*/, kudosApiClient.createKudo(giverUsername, receiverUsername, tweet.text, tweet.id_str)];
                 case 8:
                     receiver = (_c.sent()).receiver;
                     tweetResponse = "Congrats @".concat(receiverUsername, ", you received Kudos from @").concat(giverUsername, "! You now have ").concat(receiver.kudosReceived.items.length, " points \uD83C\uDF89 \uD83D\uDC96");

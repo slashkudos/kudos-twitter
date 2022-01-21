@@ -37,7 +37,7 @@ export class KudosApiClient {
     return new KudosApiClient(kudosGraphQLConfig);
   }
 
-  public async createKudo(giverUsername: string, receiverUsername: string, message: string): Promise<{ kudo: Kudo; receiver: Person }> {
+  public async createKudo(giverUsername: string, receiverUsername: string, message: string, tweetId: string): Promise<{ kudo: Kudo; receiver: Person }> {
     this.logger.info(`Creating Kudo from ${giverUsername} to ${receiverUsername} with message "${message}"`);
     let giver: Person = await this.getUser(giverUsername);
     if (!giver) {
@@ -48,8 +48,16 @@ export class KudosApiClient {
       receiver = await this.createPerson({ input: { username: receiverUsername, dataSourceApp: DataSourceApp.twitter } });
     }
 
+    const tweetUrl = `https://twitter.com/${giverUsername}/status/${tweetId}`;
     const kudo = await this.sendCreateKudoRequest({
-      input: { giverId: giver.id, receiverId: receiver.id, message: message, dataSourceApp: DataSourceApp.twitter, kudoVerb: KudoVerb.kudos },
+      input: {
+        giverId: giver.id,
+        receiverId: receiver.id,
+        message: message,
+        link: tweetUrl,
+        dataSourceApp: DataSourceApp.twitter,
+        kudoVerb: KudoVerb.kudos,
+      },
     });
 
     return { kudo, receiver: kudo.receiver };

@@ -2,6 +2,7 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+// Manually Overridden
 export const createKudo = /* GraphQL */ `
   mutation CreateKudo($input: CreateKudoInput!, $condition: ModelKudoConditionInput) {
     createKudo(input: $input, condition: $condition) {
@@ -30,23 +31,9 @@ export const updateKudo = /* GraphQL */ `
       message
       kudoVerb
       dataSourceApp
-      metadata {
-        ... on GitHubMetadata {
-          dataSourceId
-          dataSourceApp
-          url
-          owner
-          repo
-          team
-          item
-        }
-        ... on TwitterMetadata {
-          dataSourceId
-          dataSourceApp
-          url
-        }
-      }
       createdAt
+      link
+      metadata
       giver {
         id
         username
@@ -88,23 +75,9 @@ export const deleteKudo = /* GraphQL */ `
       message
       kudoVerb
       dataSourceApp
-      metadata {
-        ... on GitHubMetadata {
-          dataSourceId
-          dataSourceApp
-          url
-          owner
-          repo
-          team
-          item
-        }
-        ... on TwitterMetadata {
-          dataSourceId
-          dataSourceApp
-          url
-        }
-      }
       createdAt
+      link
+      metadata
       giver {
         id
         username
@@ -153,6 +126,8 @@ export const createPerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken
@@ -166,6 +141,8 @@ export const createPerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken
@@ -191,6 +168,8 @@ export const updatePerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken
@@ -204,6 +183,8 @@ export const updatePerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken
@@ -229,6 +210,8 @@ export const deletePerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken
@@ -242,6 +225,8 @@ export const deletePerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken

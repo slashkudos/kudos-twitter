@@ -3,7 +3,7 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 exports.__esModule = true;
-exports.GitHubItem = exports.ModelAttributeTypes = exports.DataSourceApp = exports.KudoVerb = void 0;
+exports.ModelAttributeTypes = exports.DataSourceApp = exports.KudoVerb = void 0;
 var KudoVerb;
 (function (KudoVerb) {
     KudoVerb["kudos"] = "kudos";
@@ -32,10 +32,3 @@ var ModelAttributeTypes;
     ModelAttributeTypes["stringSet"] = "stringSet";
     ModelAttributeTypes["_null"] = "_null";
 })(ModelAttributeTypes = exports.ModelAttributeTypes || (exports.ModelAttributeTypes = {}));
-var GitHubItem;
-(function (GitHubItem) {
-    GitHubItem["issue"] = "issue";
-    GitHubItem["pullRequest"] = "pullRequest";
-    GitHubItem["discussion"] = "discussion";
-    GitHubItem["teamPost"] = "teamPost";
-})(GitHubItem = exports.GitHubItem || (exports.GitHubItem = {}));

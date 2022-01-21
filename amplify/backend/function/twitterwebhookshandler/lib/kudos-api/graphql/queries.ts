@@ -11,23 +11,9 @@ export const getKudo = /* GraphQL */ `
       message
       kudoVerb
       dataSourceApp
-      metadata {
-        ... on GitHubMetadata {
-          dataSourceId
-          dataSourceApp
-          url
-          owner
-          repo
-          team
-          item
-        }
-        ... on TwitterMetadata {
-          dataSourceId
-          dataSourceApp
-          url
-        }
-      }
       createdAt
+      link
+      metadata
       giver {
         id
         username
@@ -74,23 +60,9 @@ export const listKudos = /* GraphQL */ `
         message
         kudoVerb
         dataSourceApp
-        metadata {
-          ... on GitHubMetadata {
-            dataSourceId
-            dataSourceApp
-            url
-            owner
-            repo
-            team
-            item
-          }
-          ... on TwitterMetadata {
-            dataSourceId
-            dataSourceApp
-            url
-          }
-        }
         createdAt
+        link
+        metadata
         giver {
           id
           username
@@ -129,6 +101,8 @@ export const getPerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken
@@ -142,6 +116,8 @@ export const getPerson = /* GraphQL */ `
           kudoVerb
           dataSourceApp
           createdAt
+          link
+          metadata
           updatedAt
         }
         nextToken

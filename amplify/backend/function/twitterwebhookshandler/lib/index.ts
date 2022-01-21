@@ -82,7 +82,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
           if (kudosCache[receiverUsername]) continue;
           kudosCache[receiverUsername] = true;
 
-          const { receiver } = await kudosApiClient.createKudo(giverUsername, receiverUsername, tweet.text);
+          const { receiver } = await kudosApiClient.createKudo(giverUsername, receiverUsername, tweet.text, tweet.id_str);
 
           // TODO Optimize getting total kudos received
           // FIXME Items is most likely paginated so will not be the total count
