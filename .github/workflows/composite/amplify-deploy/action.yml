@@ -1,0 +1,25 @@
+name: Amplify Deploy
+description: Deploys an AWS Amplify application
+
+inputs:
+  amplify_appId:
+    description: The Amplify app ID
+    required: true
+  amplify_env:
+    description: The Amplify app environment
+    required: true
+  command:
+    description: push vs publish
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Pull Amplify Environment
+      shell: bash
+      run: |
+        chmod +x ./scripts/amplify_pull.sh
+        ./scripts/amplify_pull.sh ${{ inputs.amplify_env }} ${{ inputs.amplify_appId }}
+    - name: Amplify ${{ inputs.command }}
+      shell: bash
+      run: |
+        amplify ${{ inputs.command }} --yes

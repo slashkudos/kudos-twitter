@@ -1,0 +1,38 @@
+# This workflow will deploy the Twitter bot using AWS Amplify
+
+name: Deploy Production Twitter 🤖
+
+on:
+  push:
+    branches: [main]
+    paths: [amplify/**]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Prod
+    runs-on: ubuntu-latest
+    env:
+      amplify_env: prod
+      amplify_appId: d2uh7hyid0jaxm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: Setup Amplify
+        uses: ./.github/workflows/composite/amplify-setup
+        with:
+          node_version: "16.x"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Amplify Deploy
+        uses: ./.github/workflows/composite/amplify-deploy
+        with:
+          amplify_appId: ${{ env.amplify_appId }}
+          amplify_env: ${{ env.amplify_env }}
+          command: push
