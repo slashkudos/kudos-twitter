@@ -29,11 +29,11 @@ jobs:
         with:
           node-version: ${{ env.node_version }}
           registry-url: "https://npm.pkg.github.com"
-      - name: npm ci
+      - name: npm install
         run: |
           node -v
           npm -v
-          npm ci
+          npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: npm run lint
