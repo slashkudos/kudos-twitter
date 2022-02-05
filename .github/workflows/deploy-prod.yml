@@ -33,12 +33,12 @@ jobs:
         run: |
           node -v
           npm -v
-      - name: npm ci
+      - name: npm ci in root
         working-directory: .
         run: |
           echo $(pwd)
           npm ci
-      - name: npm ci
+      - name: npm ci in lib
         run: |
           echo $(pwd)
           npm ci
