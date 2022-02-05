@@ -29,10 +29,18 @@ jobs:
         with:
           node-version: ${{ env.node_version }}
           registry-url: "https://npm.pkg.github.com"
-      - name: npm ci
+      - name: List node and npm versions
         run: |
           node -v
           npm -v
+      - name: npm ci
+        working-directory: .
+        run: |
+          echo $(pwd)
+          npm ci
+      - name: npm ci
+        run: |
+          echo $(pwd)
           npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
