@@ -32,4 +32,4 @@ runs:
     - name: Install Amplify
       shell: bash
       run: |
-        npm install -g @aws-amplify/cli
+        npm install -g @aws-amplify/cli@7.6.15
