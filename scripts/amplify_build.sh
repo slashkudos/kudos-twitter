@@ -16,4 +16,6 @@ echo "Executing npm ci --production in $(pwd)"
 npm ci --production
 cd -
 
+amplify status
+
 echo "Done"
