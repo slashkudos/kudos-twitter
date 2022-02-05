@@ -15,10 +15,6 @@ jobs:
   build-test:
     name: Build and test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: amplify/backend/function/twitterwebhookshandler/lib
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -33,21 +29,10 @@ jobs:
         run: |
           node -v
           npm -v
-      - name: npm ci in root
-        working-directory: .
-        run: |
-          echo $(pwd)
-          npm ci
-      - name: npm ci in lib
-        run: |
-          echo $(pwd)
-          npm ci
+      - name: Run amplify_build.sh
+        run: ./scripts/amplify_build.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: npm run lint
-        run: npm run lint
-      - name: npm run build
-        run: npm run build
   deploy:
     name: Deploy Prod
     runs-on: ubuntu-latest
