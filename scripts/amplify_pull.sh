@@ -20,8 +20,12 @@ if [ -z "$(amplify env get --name $amplify_env | grep 'No environment found')" ]
 
     amplify pull --appId $amplify_appId --envName $amplify_env --yes
 
+    rm -rf amplify/backend/function/twitterwebhookshandler/lib
+
     cp -r amplify-temp/* amplify
     rm -rf amplify-temp
+
+    amplify status
 
     status=$?
     exit $status
