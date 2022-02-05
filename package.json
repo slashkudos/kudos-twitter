@@ -1,8 +1,8 @@
 {
-    "scripts": {
-        "amplify:twitterwebhookshandler": "cd amplify/backend/function/twitterwebhookshandler/lib && npm run lint && npm run build && cd -"
-    },
-    "devDependencies": {
-        "@types/node": "^17.0.5"
-    }
+  "scripts": {
+    "amplify:twitterwebhookshandler": "./scripts/amplify_publish.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.5"
+  }
 }
