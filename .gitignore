@@ -103,6 +103,10 @@ dist
 # TernJS port file
 .tern-port
 
+
+amplify-temp
+amplify/backend/function/twitterwebhookshandler/src
+
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
@@ -123,6 +127,3 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
-
-amplify-temp
-amplify/backend/function/twitterwebhookshandler/src
