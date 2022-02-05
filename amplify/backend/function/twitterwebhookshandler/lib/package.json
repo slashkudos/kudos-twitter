@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p ../tsconfig.json",
-    "lint": "eslint '*.{js,ts,tsx}' --quiet --fix"
+    "format": "eslint '**/*.{js,ts,tsx}' --quiet --fix",
+    "lint": "eslint '**/*.{js,ts,tsx}'"
   },
   "dependencies": {
+    "@slashkudos/kudos-api": "1.0.1",
     "graphql": "^16.2.0",
     "graphql-request": "^3.7.0",
     "twitter-api-v2": "^1.8.0",

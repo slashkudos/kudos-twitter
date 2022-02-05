@@ -52,7 +52,7 @@ var ConfigService_1 = require("./ConfigService");
 var LoggerService_1 = require("./LoggerService");
 var SecurityService_1 = require("./SecurityService");
 var twitter_api_v2_1 = require("twitter-api-v2");
-var KudosApiClient_1 = require("./KudosApiClient");
+var KudosApiClient_1 = require("@slashkudos/kudos-api/lib/KudosApiClient");
 var logger = LoggerService_1.LoggerService.createLogger();
 function handler(event) {
     var _a;
