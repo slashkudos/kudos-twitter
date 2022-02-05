@@ -125,3 +125,4 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 
 amplify-temp
+amplify/backend/function/twitterwebhookshandler/src/

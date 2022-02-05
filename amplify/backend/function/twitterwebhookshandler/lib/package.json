@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "build": "tsc -p ../tsconfig.json",
+    "build": "rm -rf ../src && tsc -p ../tsconfig.json",
     "format": "eslint '**/*.{js,ts,tsx}' --quiet --fix",
     "lint": "eslint '**/*.{js,ts,tsx}'"
   },

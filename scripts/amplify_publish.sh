@@ -1,5 +1,5 @@
 cd amplify/backend/function/twitterwebhookshandler/lib
-npm run ci
+npm ci --production
 npm run lint
 npm run build
 cd -
