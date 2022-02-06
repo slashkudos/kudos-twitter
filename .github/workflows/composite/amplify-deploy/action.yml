@@ -19,9 +19,7 @@ runs:
   steps:
     - name: Pull Amplify Environment
       shell: bash
-      run: |
-        chmod +x ./scripts/amplify_pull.sh
-        ./scripts/amplify_pull.sh ${{ inputs.amplify_env }} ${{ inputs.amplify_appId }}
+      run: ./scripts/amplify_pull.sh ${{ inputs.amplify_env }} ${{ inputs.amplify_appId }}
     - name: Amplify ${{ inputs.command }}
       shell: bash
       run: |
