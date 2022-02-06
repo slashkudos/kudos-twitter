@@ -6,7 +6,7 @@ import TwitterApi from "twitter-api-v2";
 import { TweetCreateEvent } from "./types/twitter-types";
 import { HttpStatus } from "aws-sdk/clients/lambda";
 import { LogLevel } from "./types/LogLevel";
-import { KudosApiClient } from "@slashkudos/kudos-api/lib/KudosApiClient";
+import { KudosApiClient } from "@slashkudos/kudos-api";
 
 interface createApiResultOptions {
   logLevel?: LogLevel;
