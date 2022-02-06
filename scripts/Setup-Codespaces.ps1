@@ -18,7 +18,7 @@ gem install twurl
 gh repo clone twitterdev/account-activity-dashboard /workspaces/twitterdev-account-activity-dashboard
 cd /workspaces/twitterdev-account-activity-dashboard; npm i; cd -;
 
-echo  @"
+echo @"
 progress=true
 email=$(git config --get user.email)
 @slashkudos:registry=https://npm.pkg.github.com
