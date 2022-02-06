@@ -14,8 +14,8 @@ env:
   amplify_appId: d2uh7hyid0jaxm
 
 jobs:
-  build-test:
-    name: Build and test
+  deploy:
+    name: Deploy Prod
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,28 +40,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Mock twitterwebhookshandler crcEvent
         run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json
-  deploy:
-    name: Deploy Prod
-    runs-on: ubuntu-latest
-    needs: build-test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          ref: main
-      - name: Setup Amplify
-        uses: ./.github/workflows/composite/amplify-setup
-        with:
-          node_version: ${{ env.node_version }}
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
       - name: Amplify Deploy
-        uses: ./.github/workflows/composite/amplify-deploy
-        with:
-          amplify_appId: ${{ env.amplify_appId }}
-          amplify_env: ${{ env.amplify_env }}
-          command: push
+        run: amplify push --yes

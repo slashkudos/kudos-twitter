@@ -1,7 +1,4 @@
 {
-  "scripts": {
-    "amplify:twitterwebhookshandler": "./scripts/amplify_build.sh"
-  },
   "devDependencies": {
     "@types/node": "^17.0.5"
   }
