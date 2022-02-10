@@ -1,3 +1,4 @@
+import { KudosGraphQLConfig } from "@slashkudos/kudos-api";
 import * as aws from "aws-sdk";
 import * as winston from "winston";
 import { LoggerService } from "./LoggerService";
@@ -8,11 +9,6 @@ export interface TwitterConfig {
   accessToken: string;
   accessSecret: string;
   webhookEnvironment: string;
-}
-
-export interface KudosGraphQLConfig {
-  ApiKey: string;
-  ApiUrl: string;
 }
 
 type SecretName = "KUDOS_GRAPHQL_API_KEY" | "TWITTER_ACCESS_TOKEN_SECRET" | "TWITTER_ACCESS_TOKEN" | "TWITTER_CONSUMER_KEY" | "TWITTER_CONSUMER_SECRET";
