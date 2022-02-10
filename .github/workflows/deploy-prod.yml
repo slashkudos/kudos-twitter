@@ -40,5 +40,10 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Mock twitterwebhookshandler crcEvent
         run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json
+      - name: Health check (Before)
+        continue-on-error: true
+        run: aws lambda invoke --function-name twitterwebhookshandler-prod --payload "file://lib/crcEvent.json" --cli-binary-format raw-in-base64-out /dev/stdout
       - name: Amplify Deploy
         run: amplify push --yes
+      - name: Health check (After)
+        run: aws lambda invoke --function-name twitterwebhookshandler-prod --payload "file://lib/crcEvent.json" --cli-binary-format raw-in-base64-out /dev/stdout
