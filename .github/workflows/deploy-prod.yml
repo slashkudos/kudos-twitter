@@ -17,6 +17,9 @@ jobs:
   deploy:
     name: Deploy Prod
     runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://restapi.slashkudos.com/twitter
     steps:
       - name: Checkout
         uses: actions/checkout@v2
