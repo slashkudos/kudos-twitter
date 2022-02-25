@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ROOT_DIR=$SCRIPT_DIR/..
+
 amplify_env=$1
 amplify_appId=$2
 
@@ -15,18 +18,18 @@ fi
 
 if [ -z "$(amplify env get --name $amplify_env | grep 'No environment found')" ]; then
     echo "Pulling $amplify_env ($amplify_appId)"
-    rm -rf amplify-temp
-    cp -r amplify amplify-temp
+    rm -rf $ROOT_DIR/amplify-temp
+    cp -r $ROOT_DIR/amplify $ROOT_DIR/amplify-temp
 
     amplify pull --appId $amplify_appId --envName $amplify_env --yes
 
-    rm -rf amplify/backend/api/*
-    rm -rf amplify/backend/auth/*
-    rm -rf amplify/backend/function/*
-    rm -rf amplify/backend/types/*
+    rm -rf $ROOT_DIR/amplify/backend/api/*
+    rm -rf $ROOT_DIR/amplify/backend/auth/*
+    rm -rf $ROOT_DIR/amplify/backend/function/*
+    rm -rf $ROOT_DIR/amplify/backend/types/*
 
-    cp -r amplify-temp/* amplify
-    rm -rf amplify-temp
+    cp -r $ROOT_DIR/amplify-temp/* $ROOT_DIR/amplify
+    rm -rf $ROOT_DIR/amplify-temp
 
     amplify status
 
