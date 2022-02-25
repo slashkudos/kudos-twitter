@@ -525,6 +525,7 @@ export interface components {
        * @description The URL to the profile image for this user.
        */
       profile_image_url?: string;
+      profile_image_url_https?: string;
       /** @description The location specified in the user's profile, if the user provided one. As this is a freeform value, it may not indicate a valid location, but it may be fuzzily evaluated when performing searches with location queries. */
       location?: string;
       /** @description The URL specified in the user's profile. */
