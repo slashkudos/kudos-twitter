@@ -95,7 +95,8 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
           // TODO Optimize getting total kudos received
           // FIXME Items is most likely paginated so will not be the total count
-          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${receiver.kudosReceived.items.length} points 🎉 💖`;
+          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${receiver.kudosReceived.items.length} points 🎉 💖
+          https://app.slashkudos.com`;
           logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
 
           await client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
