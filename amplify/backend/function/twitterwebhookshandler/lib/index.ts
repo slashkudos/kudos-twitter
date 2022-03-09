@@ -84,7 +84,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
           const receiverProfileImageUrl = await client.v2.user(mention.id_str);
 
-          const { receiver } = await kudosApiClient.createKudo({
+          await kudosApiClient.createKudo({
             giverUsername,
             receiverUsername,
             message: tweet.text,
@@ -94,9 +94,8 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
             dataSource: DataSourceApp.twitter,
           });
 
-          // TODO Optimize getting total kudos received
-          // FIXME Items is most likely paginated so will not be the total count
-          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${receiver.kudosReceived.items.length} points 🎉 💖
+          const kudosCount = await kudosApiClient.getTotalKudosForReceiver(receiverUsername, DataSourceApp.twitter);
+          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${kudosCount} Kudos! 🎉 💖
           https://app.slashkudos.com`;
           logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
 
