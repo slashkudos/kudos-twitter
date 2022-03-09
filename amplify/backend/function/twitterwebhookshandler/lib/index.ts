@@ -6,7 +6,7 @@ import TwitterApi from "twitter-api-v2";
 import { TweetCreateEvent } from "./types/twitter-types";
 import { HttpStatus } from "aws-sdk/clients/lambda";
 import { LogLevel } from "./types/LogLevel";
-import { KudosApiClient } from "@slashkudos/kudos-api";
+import { DataSourceApp, KudosApiClient } from "@slashkudos/kudos-api";
 
 interface createApiResultOptions {
   logLevel?: LogLevel;
@@ -84,18 +84,18 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
           const receiverProfileImageUrl = await client.v2.user(mention.id_str);
 
-          const { receiver } = await kudosApiClient.createTwitterKudo({
+          await kudosApiClient.createKudo({
             giverUsername,
             receiverUsername,
             message: tweet.text,
             tweetId: tweet.id_str,
             giverProfileImageUrl: tweet.user.profile_image_url_https,
             receiverProfileImageUrl: receiverProfileImageUrl.data.profile_image_url,
+            dataSource: DataSourceApp.twitter,
           });
 
-          // TODO Optimize getting total kudos received
-          // FIXME Items is most likely paginated so will not be the total count
-          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${receiver.kudosReceived.items.length} points 🎉 💖
+          const kudosCount = await kudosApiClient.getTotalKudosForReceiver(receiverUsername, DataSourceApp.twitter);
+          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${kudosCount} Kudos! 🎉 💖
           https://app.slashkudos.com`;
           logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
 

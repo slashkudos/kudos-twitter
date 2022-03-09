@@ -1,12 +1,10 @@
 # This workflow will deploy the Twitter bot using AWS Amplify
 
-name: Deploy Production Twitter 🤖
+name: Deploy CI (Dry Run)
 
 on:
-  push:
-    branches: [main]
-    paths: [amplify/**]
-  workflow_dispatch:
+  pull_request: {}
+  workflow_dispatch: {}
 
 env:
   node_version: "16.x"
@@ -15,17 +13,11 @@ env:
 
 jobs:
   deploy:
-    name: Deploy Prod
+    name: Deploy CI
     runs-on: ubuntu-latest
-    environment:
-      name: Production
-      url: https://restapi.slashkudos.com/twitter
-    concurrency: ${{ github.workflow }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          ref: main
       - name: Setup Amplify
         uses: ./.github/workflows/composite/amplify-setup
         with:
@@ -42,12 +34,7 @@ jobs:
         run: ./scripts/amplify_prebuild.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: amplify diff
+        run: amplify status -v
       - name: Mock twitterwebhookshandler crcEvent
         run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json
-      - name: Health check (Before)
-        continue-on-error: true
-        run: aws lambda invoke --function-name twitterwebhookshandler-prod --payload "file://amplify/backend/function/twitterwebhookshandler/lib/crcEvent.json" --cli-binary-format raw-in-base64-out /dev/stdout
-      - name: Amplify Deploy
-        run: amplify push --yes
-      - name: Health check (After)
-        run: aws lambda invoke --function-name twitterwebhookshandler-prod --payload "file://amplify/backend/function/twitterwebhookshandler/lib/crcEvent.json" --cli-binary-format raw-in-base64-out /dev/stdout
