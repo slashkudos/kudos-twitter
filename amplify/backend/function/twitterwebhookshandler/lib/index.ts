@@ -6,7 +6,7 @@ import TwitterApi from "twitter-api-v2";
 import { TweetCreateEvent } from "./types/twitter-types";
 import { HttpStatus } from "aws-sdk/clients/lambda";
 import { LogLevel } from "./types/LogLevel";
-import { KudosApiClient } from "@slashkudos/kudos-api";
+import { DataSourceApp, KudosApiClient } from "@slashkudos/kudos-api";
 
 interface createApiResultOptions {
   logLevel?: LogLevel;
@@ -84,13 +84,14 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
           const receiverProfileImageUrl = await client.v2.user(mention.id_str);
 
-          const { receiver } = await kudosApiClient.createTwitterKudo({
+          const { receiver } = await kudosApiClient.createKudo({
             giverUsername,
             receiverUsername,
             message: tweet.text,
             tweetId: tweet.id_str,
             giverProfileImageUrl: tweet.user.profile_image_url_https,
             receiverProfileImageUrl: receiverProfileImageUrl.data.profile_image_url,
+            dataSource: DataSourceApp.twitter,
           });
 
           // TODO Optimize getting total kudos received

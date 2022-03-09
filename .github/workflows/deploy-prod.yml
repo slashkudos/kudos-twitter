@@ -20,6 +20,7 @@ jobs:
     environment:
       name: Production
       url: https://restapi.slashkudos.com/twitter
+    concurrency: ${{ github.workflow }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
