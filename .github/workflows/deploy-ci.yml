@@ -1,0 +1,40 @@
+# This workflow will deploy the Twitter bot using AWS Amplify
+
+name: Deploy CI (Dry Run)
+
+on:
+  pull_request: {}
+  workflow_dispatch: {}
+
+env:
+  node_version: "16.x"
+  amplify_env: prod
+  amplify_appId: d2uh7hyid0jaxm
+
+jobs:
+  deploy:
+    name: Deploy CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Amplify
+        uses: ./.github/workflows/composite/amplify-setup
+        with:
+          node_version: ${{ env.node_version }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Run amplify_pull.sh
+        run: ./scripts/amplify_pull.sh "$amplify_env" "$amplify_appId"
+      - name: Run amplify_prebuild.sh
+        run: ./scripts/amplify_prebuild.sh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: amplify diff
+        run: amplify status -v
+      - name: Mock twitterwebhookshandler crcEvent
+        run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json
