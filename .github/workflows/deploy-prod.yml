@@ -47,7 +47,9 @@ jobs:
       - name: Health check (Before)
         continue-on-error: true
         run: aws lambda invoke --function-name twitterwebhookshandler-prod --payload "file://amplify/backend/function/twitterwebhookshandler/lib/crcEvent.json" --cli-binary-format raw-in-base64-out /dev/stdout
-      - name: Amplify Deploy
-        run: amplify push --yes
+      - name: amplify push
+        run: |
+          # GraphQL transformer version 2 outputs GraphQL API Key even with "CreateAPIKey": 0
+          amplify push --yes | grep -v "GraphQL API KEY"
       - name: Health check (After)
         run: aws lambda invoke --function-name twitterwebhookshandler-prod --payload "file://amplify/backend/function/twitterwebhookshandler/lib/crcEvent.json" --cli-binary-format raw-in-base64-out /dev/stdout

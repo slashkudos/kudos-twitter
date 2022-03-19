@@ -34,7 +34,7 @@ jobs:
         run: ./scripts/amplify_prebuild.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: amplify diff
-        run: amplify status -v
+      - name: amplify status
+        run: amplify status -v | grep -v "GraphQL API KEY"
       - name: Mock twitterwebhookshandler crcEvent
         run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json
