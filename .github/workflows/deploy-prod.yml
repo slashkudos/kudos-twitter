@@ -26,10 +26,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: main
-      - name: Setup Amplify
-        uses: ./.github/workflows/composite/amplify-setup
-        with:
+      - name: Setup @aws-amplify/cli
+        uses: philip-gai/setup-aws-amplify-cli@v1
+          cli_version: "7.6.22"
           node_version: ${{ env.node_version }}
+          cache_dependencies: "true"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
