@@ -4,6 +4,9 @@ name: Deploy CI (Dry Run)
 
 on:
   pull_request: {}
+  push:
+    branches: [develop]
+    paths: [amplify/**]
   workflow_dispatch: {}
 
 env:
@@ -18,10 +21,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup Amplify
-        uses: ./.github/workflows/composite/amplify-setup
+      - name: Setup @aws-amplify/cli
+        uses: philip-gai/setup-aws-amplify-cli@v1
         with:
+          cli_version: "7.6.22"
           node_version: ${{ env.node_version }}
+          cache_dependencies: "true"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -34,7 +39,7 @@ jobs:
         run: ./scripts/amplify_prebuild.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: amplify diff
-        run: amplify status -v
+      - name: amplify status
+        run: amplify status -v | grep -v "GraphQL API KEY"
       - name: Mock twitterwebhookshandler crcEvent
         run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json

@@ -31,7 +31,8 @@ if [ -z "$(amplify env get --name $amplify_env | grep 'No environment found')" ]
     cp -r $ROOT_DIR/amplify-temp/* $ROOT_DIR/amplify
     rm -rf $ROOT_DIR/amplify-temp
 
-    amplify status
+    # GraphQL transformer version 2 outputs GraphQL API Key even with "CreateAPIKey": 0
+    amplify status | grep -v "GraphQL API KEY"
 
     status=$?
     exit $status
