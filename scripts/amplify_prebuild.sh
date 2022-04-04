@@ -1,3 +1,6 @@
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
 npm ci
 echo "Executing npm ci in $(pwd)"
 
@@ -20,7 +23,7 @@ npm ci --production
 cd -
 
 if command -v amplify &>/dev/null; then
-  amplify status | grep -v "GraphQL API KEY"
+  amplify status -v | grep -v "GraphQL API KEY"
 fi
 
 echo "Done"
