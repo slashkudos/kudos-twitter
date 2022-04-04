@@ -97,8 +97,8 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
           });
 
           const kudosCount = await kudosApiClient.getTotalKudosForReceiver(receiverUsername, DataSourceApp.twitter);
-          const tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${kudosCount} Kudos! 🎉 💖
-          https://app.slashkudos.com/?search=${receiverUsername}`;
+          let tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! You now have ${kudosCount} Kudos! 🎉 💖`;
+          tweetResponse += `\nView kudos: https://app.slashkudos.com/?search=${receiverUsername}`;
           logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
 
           await client.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
