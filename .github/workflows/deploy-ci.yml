@@ -6,7 +6,6 @@ on:
   pull_request: {}
   push:
     branches: [develop]
-    paths: [amplify/**]
   workflow_dispatch: {}
 
 env:
