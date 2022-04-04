@@ -1,3 +1,6 @@
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
 npm ci
 echo "Executing npm ci in $(pwd)"
 
