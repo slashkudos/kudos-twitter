@@ -33,9 +33,6 @@ jobs:
           cli_version: "7.6.22"
           node_version: ${{ env.node_version }}
           registry_url: "https://npm.pkg.github.com"
-      - name: Setup @aws-amplify/cli
-        uses: philip-gai/setup-aws-amplify-cli@v1
-        with:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
