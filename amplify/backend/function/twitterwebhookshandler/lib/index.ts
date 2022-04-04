@@ -82,7 +82,9 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
           if (kudosCache[receiverUsername]) continue;
           kudosCache[receiverUsername] = true;
 
-          const receiverProfileImageUrl = await client.v2.user(mention.id_str);
+          logger.info("Getting receiver user profile.");
+          const receiverProfile = await client.v2.user(mention.id_str, { "user.fields": ["profile_image_url"] });
+          logger.http(JSON.stringify(receiverProfile));
 
           await kudosApiClient.createKudo({
             giverUsername,
@@ -90,7 +92,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
             message: tweet.text,
             tweetId: tweet.id_str,
             giverProfileImageUrl: tweet.user.profile_image_url_https,
-            receiverProfileImageUrl: receiverProfileImageUrl.data.profile_image_url,
+            receiverProfileImageUrl: receiverProfile.data.profile_image_url,
             dataSource: DataSourceApp.twitter,
           });
 
