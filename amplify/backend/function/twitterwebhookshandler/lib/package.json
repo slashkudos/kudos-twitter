@@ -10,7 +10,7 @@
     "lint": "eslint '**/*.{js,ts,tsx}'"
   },
   "dependencies": {
-    "@slashkudos/kudos-api": "1.2.2",
+    "@slashkudos/kudos-api": "1.2.5",
     "aws-sdk": "^2.1048.0",
     "graphql": "^16.2.0",
     "graphql-request": "^3.7.0",
