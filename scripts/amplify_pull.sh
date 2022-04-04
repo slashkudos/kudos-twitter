@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$SCRIPT_DIR/..
 
 amplify_env=$1
@@ -32,7 +32,7 @@ if [ -z "$(amplify env get --name $amplify_env | grep 'No environment found')" ]
     rm -rf $ROOT_DIR/amplify-temp
 
     # GraphQL transformer version 2 outputs GraphQL API Key even with "CreateAPIKey": 0
-    amplify status | grep -v "GraphQL API KEY"
+    amplify status -v | grep -v "GraphQL API KEY"
 
     status=$?
     exit $status
