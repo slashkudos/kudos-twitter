@@ -21,11 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup @aws-amplify/cli
-        uses: philip-gai/setup-aws-amplify-cli@v1
+        uses: philip-gai/setup-aws-amplify-cli@v2
         with:
+          cache_dependencies: "true"
           cli_version: "7.6.22"
           node_version: ${{ env.node_version }}
-          cache_dependencies: "true"
+          registry_url: "https://npm.pkg.github.com"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
