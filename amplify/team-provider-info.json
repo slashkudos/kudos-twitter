@@ -14,12 +14,13 @@
     },
     "categories": {
       "auth": {
-        "undefined": {}
+        "undefined": {},
+        "kudostwitter": {}
       },
       "function": {
         "twitterwebhookshandler": {
           "deploymentBucketName": "amplify-kudostwitter-prod-51308-deployment",
-          "s3Key": "amplify-builds/twitterwebhookshandler-4d43396763446d59537a-build.zip",
+          "s3Key": "amplify-builds/twitterwebhookshandler-737a62387a624152574c-build.zip",
           "secretsPathAmplifyAppId": "d2uh7hyid0jaxm",
           "twitterWebhookEnv": "production",
           "logLevel": "debug",
