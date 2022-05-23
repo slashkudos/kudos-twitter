@@ -98,12 +98,12 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
 
           const kudosCount = await kudosApiClient.getTotalKudosForReceiver(receiverUsername, DataSourceApp.twitter);
 
-          let kudosCountMessage = `You now have ${kudosCount} Kudos!`;
+          let kudosCountMessage = `You now have ${kudosCount} kudos!`;
           if (kudosCount === 1) {
-            kudosCountMessage = `This is your first Kudo!`;
+            kudosCountMessage = `This is your first kudo!`;
           }
 
-          let tweetResponse = `Congrats @${receiverUsername}, you received Kudos from @${giverUsername}! ${kudosCountMessage} 🎉 💖`;
+          let tweetResponse = `Congrats @${receiverUsername}, you received kudos from @${giverUsername}! ${kudosCountMessage} 🎉 💖`;
           tweetResponse += `\nView your kudos: https://app.slashkudos.com/?search=${receiverUsername}`;
 
           logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
