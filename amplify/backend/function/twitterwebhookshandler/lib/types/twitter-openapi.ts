@@ -415,6 +415,7 @@ export interface components {
       in_reply_to_status_id_str?: components["schemas"]["TweetID_String"];
       in_reply_to_user_id?: components["schemas"]["UserID"];
       in_reply_to_user_id_str?: components["schemas"]["UserID_String"];
+      in_reply_to_screen_name?: components["schemas"]["UserName"];
       user?: components["schemas"]["User"];
       conversation_id?: components["schemas"]["TweetID"];
       reply_settings?: components["schemas"]["ReplySettings"];
