@@ -58,12 +58,12 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       }
 
       if (eventBody.tweet_create_events && eventBody.user_has_blocked === false) {
-        const tweetCreateEventActivity = eventBody.tweet_create_events as TweetCreateEventActivity;
+        const tweetCreateEventActivity = eventBody as TweetCreateEventActivity;
         return await TweetCreateEventsActivityHandler.handleIt(tweetCreateEventActivity, twitterClient, kudosApiClient);
       }
 
       if (eventBody.follow_events) {
-        const followEventActivity = eventBody.follow_events as FollowEventActivity;
+        const followEventActivity = eventBody as FollowEventActivity;
         const followEvent = followEventActivity.follow_events[0];
         if (followEvent.type === "follow") {
           return await FollowEventsHandler.handleIt(followEventActivity, twitterClient);
