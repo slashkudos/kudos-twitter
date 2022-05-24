@@ -5,7 +5,7 @@ import { LoggerService } from "./LoggerService";
 
 const logger = LoggerService.createLogger();
 
-export default class Utility {
+export default class Utilities {
   static createApiResult(body: string, statusCode: HttpStatus, options?: createApiResultOptions): APIGatewayProxyResultV2 {
     logger.verbose(`Entering createApiResult`);
     const defaultOptions = { logLevel: "warn", stringify: true };

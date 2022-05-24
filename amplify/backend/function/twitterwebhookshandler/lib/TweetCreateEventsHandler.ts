@@ -3,7 +3,7 @@ import { LoggerService } from "./LoggerService";
 import TwitterApi from "twitter-api-v2";
 import { TweetCreateEventActivity } from "./types/twitter-types";
 import { DataSourceApp, KudosApiClient } from "@slashkudos/kudos-api";
-import Utility from "./Utility";
+import Utilities from "./Utilities";
 
 const logger = LoggerService.createLogger();
 
@@ -18,9 +18,16 @@ export default class TweetCreateEventsActivityHandler {
     const tweet = tweetCreateEventActivity.tweet_create_events[0];
     const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
-    // Skip if the tweet is a reply, or not for the app user, or doesn't start with @appUser
-    if (!tweet.text.startsWith(appUserMentionStr) || tweet.in_reply_to_status_id || mentions.length === 0) {
-      return Utility.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
+    // Skip if the tweet doesn't start with @slashkudos, is from a different app subscription,
+    // if it was made by the app itself, or if there are no mentions.
+    const isUserGivingKudos =
+      tweet.text.startsWith(appUserMentionStr) &&
+      tweetCreateEventActivity.for_user_id === appUser.id_str &&
+      tweet.user.id !== appUser.id &&
+      mentions.length > 0;
+
+    if (!isUserGivingKudos) {
+      return Utilities.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
     }
 
     const kudosCache = {};
@@ -62,6 +69,6 @@ export default class TweetCreateEventsActivityHandler {
         logger.error(error.message || error);
       }
     }
-    return Utility.createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200);
+    return Utilities.createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200);
   }
 }

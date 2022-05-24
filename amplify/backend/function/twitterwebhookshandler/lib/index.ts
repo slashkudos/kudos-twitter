@@ -4,7 +4,7 @@ import { LoggerService } from "./LoggerService";
 import { SecurityService } from "./SecurityService";
 import { FollowEventActivity, TweetCreateEventActivity } from "./types/twitter-types";
 import { KudosApiClient } from "@slashkudos/kudos-api";
-import Utility from "./Utility";
+import Utilities from "./Utilities";
 import { TwitterApi } from "twitter-api-v2";
 import FollowEventsHandler from "./FollowEventsHandler";
 import TweetCreateEventsActivityHandler from "./TweetCreateEventsHandler";
@@ -30,9 +30,9 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
         const body = JSON.stringify({
           response_token: hashSignature,
         });
-        return Utility.createApiResult(body, 200, { stringify: false });
+        return Utilities.createApiResult(body, 200, { stringify: false });
       } else {
-        return Utility.createApiResult("crc_token missing from request.", 400);
+        return Utilities.createApiResult("crc_token missing from request.", 400);
       }
     } else if (httpMethod === "POST") {
       // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
@@ -45,7 +45,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       if (calculatedSignature !== webhookSignature) {
         logger.debug(`Webhook Signature: ${webhookSignature}`);
         logger.debug(`Server-side Calculated Signature: ${calculatedSignature}`);
-        return Utility.createApiResult("Unathorized. POST request is not originating from Twitter.", 403);
+        return Utilities.createApiResult("Unathorized. POST request is not originating from Twitter.", 403);
       }
       logger.info("Validated the request is coming from Twitter.");
 
@@ -54,7 +54,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       const appUser = await twitterClient.currentUser();
 
       if (eventBody.for_user_id !== appUser.id_str) {
-        return Utility.createApiResult("Tweet is not for this app. Exiting", 200);
+        return Utilities.createApiResult("Tweet is not for this app. Exiting", 200);
       }
 
       if (eventBody.tweet_create_events && eventBody.user_has_blocked === false) {
@@ -68,7 +68,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
           return await FollowEventsHandler.handleIt(followEventActivity, twitterClient);
         }
       }
-      return Utility.createApiResult("Event is not handled by app. Exiting", 200);
+      return Utilities.createApiResult("Event is not handled by app. Exiting", 200);
     }
   } catch (error) {
     logger.error(error.message || error);
@@ -78,5 +78,5 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
   const message = `Received an unhandled ${httpMethod} request.
   Request Body: ${event.body}`;
 
-  return Utility.createApiResult(message, 404);
+  return Utilities.createApiResult(message, 404);
 }
