@@ -64,13 +64,15 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       const tweet = tweetCreateEvent.tweet_create_events[0];
       const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
-      // Skip if the tweet is a reply, or not for the app user, or doesn't start with @appUser
-      if (
-        !tweet.text.startsWith(appUserMentionStr) ||
-        tweetCreateEvent.for_user_id !== appUser.id_str ||
-        tweet.in_reply_to_status_id ||
-        mentions.length === 0
-      ) {
+      // Skip if the tweet doesn't start with @slashkudos, is from a different app subscription,
+      // if it was made by the app itself, or if there are no mentions.
+      const isUserGivingKudos =
+        tweet.text.startsWith(appUserMentionStr) &&
+        tweetCreateEvent.for_user_id === appUser.id_str &&
+        tweet.user.id !== appUser.id &&
+        mentions.length > 0;
+
+      if (!isUserGivingKudos) {
         return createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
       }
 
