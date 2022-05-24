@@ -17,11 +17,7 @@ export default class TweetCreateEventsActivityHandler {
     const tweet = tweetCreateEventActivity.tweet_create_events[0];
     const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
-    // Skip if the tweet doesn't start with @slashkudos, is from a different app subscription,
-    // if it was made by the app itself (unless the app is not replying to a tweet), or if there are no mentions.
-    const isUserGivingKudos =
-      tweet.text.startsWith(`@${appUser.screen_name}`) && (tweet.user.id !== appUser.id || !tweet.in_reply_to_status_id) && mentions.length > 0;
-
+    const isUserGivingKudos = tweet.text.startsWith(`@${appUser.screen_name}`) && mentions.length > 0;
     if (!isUserGivingKudos) {
       return Utilities.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
     }
