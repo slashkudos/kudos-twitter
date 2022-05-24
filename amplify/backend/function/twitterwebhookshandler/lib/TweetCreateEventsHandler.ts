@@ -15,19 +15,11 @@ export default class TweetCreateEventsActivityHandler {
   ): Promise<APIGatewayProxyResultV2<never>> {
     const appUser = await twitterClient.currentUser();
     const tweet = tweetCreateEventActivity.tweet_create_events[0];
-    const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
     // Remove beginning mentions if tweet is a reply (these mentions are added automatically)
-    let tweetText = tweet.text;
-    if (tweet.in_reply_to_status_id && tweetText.startsWith(`@${tweet.in_reply_to_screen_name}`)) {
-      tweetText = tweetText.replace(`@${tweet.in_reply_to_screen_name}`, "").trimStart();
-
-      const replyMentionIndex = mentions.findIndex((mention) => mention.screen_name === tweet.in_reply_to_screen_name);
-      if (replyMentionIndex !== -1) {
-        logger.debug("Removing the automatic reply mention from the mentions array.");
-        mentions.splice(replyMentionIndex, 1);
-      }
-    }
+    const lastAppMentionIndex = tweet.text.lastIndexOf(`@${appUser.screen_name}`);
+    const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id && mention.indices[0] > lastAppMentionIndex);
+    const tweetText = tweet.text.substring(lastAppMentionIndex);
 
     logger.info(`Checking if the tweet "${tweetText}" starts with "@${appUser.screen_name}" and contains mentions.`);
     const isUserGivingKudos =

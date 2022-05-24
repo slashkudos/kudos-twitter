@@ -353,8 +353,10 @@ export interface components {
     /** @description Represent the portion of text recognized as a User mention, and its start and end position within the text. */
     MentionFields: {
       screen_name: components["schemas"]["UserName"];
+      name: components["schemas"]["UserName"];
       id: components["schemas"]["UserID"];
       id_str: string;
+      indices: number[];
     };
     MentionEntity: components["schemas"]["EntityIndicesInclusiveExclusive"] & components["schemas"]["MentionFields"];
     FullTextEntities: {
