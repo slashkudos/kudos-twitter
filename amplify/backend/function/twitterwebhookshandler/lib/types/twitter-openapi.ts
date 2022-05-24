@@ -507,6 +507,7 @@ export interface components {
      */
     User: {
       id: components["schemas"]["UserID"];
+      id_str: components["schemas"]["UserID_String"];
       /**
        * Format: date-time
        * @description Creation time of this user.
