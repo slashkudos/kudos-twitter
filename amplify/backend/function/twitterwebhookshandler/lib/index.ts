@@ -61,6 +61,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
         const tweetCreateEventActivity = eventBody.tweet_create_events as TweetCreateEventActivity;
         return await TweetCreateEventsActivityHandler.handleIt(tweetCreateEventActivity, twitterClient, kudosApiClient);
       }
+
       if (eventBody.follow_events) {
         const followEventActivity = eventBody.follow_events as FollowEventActivity;
         const followEvent = followEventActivity.follow_events[0];
@@ -68,6 +69,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
           return await FollowEventsHandler.handleIt(followEventActivity, twitterClient);
         }
       }
+
       return Utilities.createApiResult("Event is not handled by app. Exiting", 200);
     }
   } catch (error) {
