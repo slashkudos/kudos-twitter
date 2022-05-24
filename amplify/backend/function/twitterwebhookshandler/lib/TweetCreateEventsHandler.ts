@@ -17,7 +17,20 @@ export default class TweetCreateEventsActivityHandler {
     const tweet = tweetCreateEventActivity.tweet_create_events[0];
     const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
-    const isUserGivingKudos = tweet.text.startsWith(`@${appUser.screen_name}`) && mentions.length > 0;
+    // Remove beginning mentions if tweet is a reply (these mentions are added automatically)
+    let tweetText = tweet.text;
+    if (tweet.in_reply_to_screen_name && tweetText.startsWith(`@${tweet.in_reply_to_screen_name}`)) {
+      tweetText = tweetText.replace(`@${tweet.in_reply_to_screen_name}`, "").trimStart();
+
+      const replyMentionIndex = mentions.findIndex((mention) => mention.screen_name === tweet.in_reply_to_screen_name);
+      if (replyMentionIndex !== -1) {
+        logger.debug("Removing the automatic reply mention from the mentions array.");
+        mentions.splice(replyMentionIndex, 1);
+      }
+    }
+
+    logger.debug(`Checking if the tweet "${tweetText}" starts with "@${appUser.screen_name}" and mentions.`);
+    const isUserGivingKudos = tweetText.startsWith(`@${appUser.screen_name}`) && mentions.length > 0;
     if (!isUserGivingKudos) {
       return Utilities.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
     }
@@ -37,7 +50,7 @@ export default class TweetCreateEventsActivityHandler {
         await kudosApiClient.createKudo({
           giverUsername,
           receiverUsername,
-          message: tweet.text,
+          message: tweetText,
           tweetId: tweet.id_str,
           giverProfileImageUrl: tweet.user.profile_image_url_https,
           receiverProfileImageUrl: receiverProfile.data.profile_image_url,
