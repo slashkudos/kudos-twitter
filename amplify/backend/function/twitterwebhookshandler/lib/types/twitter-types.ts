@@ -16,8 +16,12 @@ export interface FollowEventActivity {
 export interface FollowEvent {
   type: "follow" | "unfollow";
   created_timestamp: string;
-  target: User;
-  source: User;
+  target: Omit<User, "id" | "id_str"> & {
+    id: string;
+  };
+  source: Omit<User, "id" | "id_str"> & {
+    id: string;
+  };
 }
 
 export type ActivityEvent = TweetCreateEventActivity & FollowEventActivity;

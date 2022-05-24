@@ -12,7 +12,7 @@ export default class FollowEventsHandler {
     const followEvent = followEventActivity.follow_events[0];
 
     // Skip if this is not someone following the app
-    const isUserFollowingApp = followEvent.type === "follow" && followEvent.target.id === appUser.id;
+    const isUserFollowingApp = followEvent.type === "follow" && followEvent.target.id === appUser.id_str;
     if (!isUserFollowingApp) {
       return Utilities.createApiResult("This user is not following the app. Exiting", 200);
     }
@@ -22,9 +22,13 @@ export default class FollowEventsHandler {
     logger.info(`Creating tweet "${kudosMessage}"`);
     await twitterClient.v1.tweet(kudosMessage, { auto_populate_reply_metadata: true });
 
-    // Follow the user back
-    logger.info(`Following the user back`);
-    await twitterClient.v2.follow(appUser.id_str, followEvent.source.id_str);
+    try {
+      // Follow the user back
+      logger.info(`Following the user back`);
+      await twitterClient.v2.follow(appUser.id_str, followEvent.source.id);
+    } catch (error) {
+      logger.error(`Failed to follow the user back: ${error.message || error}`);
+    }
 
     return Utilities.createApiResult("Gave the follower kudos and followed them back!", 200);
   }
