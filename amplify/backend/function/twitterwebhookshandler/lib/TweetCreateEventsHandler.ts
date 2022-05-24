@@ -19,7 +19,7 @@ export default class TweetCreateEventsActivityHandler {
 
     // Remove beginning mentions if tweet is a reply (these mentions are added automatically)
     let tweetText = tweet.text;
-    if (tweet.in_reply_to_screen_name && tweetText.startsWith(`@${tweet.in_reply_to_screen_name}`)) {
+    if (tweet.in_reply_to_status_id && tweetText.startsWith(`@${tweet.in_reply_to_screen_name}`)) {
       tweetText = tweetText.replace(`@${tweet.in_reply_to_screen_name}`, "").trimStart();
 
       const replyMentionIndex = mentions.findIndex((mention) => mention.screen_name === tweet.in_reply_to_screen_name);
