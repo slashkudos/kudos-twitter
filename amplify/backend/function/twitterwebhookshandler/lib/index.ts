@@ -45,7 +45,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       if (calculatedSignature !== webhookSignature) {
         logger.debug(`Webhook Signature: ${webhookSignature}`);
         logger.debug(`Server-side Calculated Signature: ${calculatedSignature}`);
-        return Utilities.createApiResult("Unathorized. POST request is not originating from Twitter.", 403);
+        return Utilities.createApiResult("Unauthorized. POST request is not originating from Twitter.", 403);
       }
       logger.info("Validated the request is coming from Twitter.");
 
