@@ -30,7 +30,8 @@ export default class TweetCreateEventsActivityHandler {
     }
 
     logger.info(`Checking if the tweet "${tweetText}" starts with "@${appUser.screen_name}" and contains mentions.`);
-    const isUserGivingKudos = tweetText.startsWith(`@${appUser.screen_name}`) && mentions.length > 0 && tweet.in_reply_to_user_id !== appUser.id;
+    const isUserGivingKudos =
+      tweetText.startsWith(`@${appUser.screen_name}`) && mentions.length > 0 && (!tweet.in_reply_to_status_id || tweet.in_reply_to_user_id !== appUser.id);
     if (!isUserGivingKudos) {
       return Utilities.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
     }
