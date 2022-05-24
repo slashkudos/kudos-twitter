@@ -21,6 +21,11 @@ export default class FollowEventsHandler {
     const kudosMessage = `@${appUser.screen_name} Thanks @${followEvent.source.screen_name} for the follow! Now go, spread kudos! ❤️🥰`;
     logger.info(`Creating tweet "${kudosMessage}"`);
     await twitterClient.v1.tweet(kudosMessage, { auto_populate_reply_metadata: true });
-    return Utilities.createApiResult("Gave the follower kudos!", 200);
+
+    // Follow the user back
+    logger.info(`Following the user back`);
+    await twitterClient.v2.follow(appUser.id_str, followEvent.source.id_str);
+
+    return Utilities.createApiResult("Gave the follower kudos and followed them back!", 200);
   }
 }
