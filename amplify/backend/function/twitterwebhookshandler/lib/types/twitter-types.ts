@@ -19,3 +19,5 @@ export interface FollowEvent {
   target: User;
   source: User;
 }
+
+export type ActivityEvent = TweetCreateEventActivity & FollowEventActivity;

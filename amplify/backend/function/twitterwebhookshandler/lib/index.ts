@@ -2,7 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { ConfigService } from "./ConfigService";
 import { LoggerService } from "./LoggerService";
 import { SecurityService } from "./SecurityService";
-import { FollowEventActivity, TweetCreateEventActivity } from "./types/twitter-types";
+import { ActivityEvent, FollowEventActivity, TweetCreateEventActivity } from "./types/twitter-types";
 import { KudosApiClient } from "@slashkudos/kudos-api";
 import Utilities from "./Utilities";
 import { TwitterApi } from "twitter-api-v2";
@@ -49,7 +49,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       }
       logger.info("Validated the request is coming from Twitter.");
 
-      const eventBody = JSON.parse(event.body);
+      const eventBody = JSON.parse(event.body) as ActivityEvent;
       const twitterClient = new TwitterApi(configService.twitterConfig);
       const appUser = await twitterClient.currentUser();
 
