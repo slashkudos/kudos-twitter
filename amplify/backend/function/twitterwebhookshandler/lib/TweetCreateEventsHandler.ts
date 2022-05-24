@@ -14,17 +14,13 @@ export default class TweetCreateEventsActivityHandler {
     kudosApiClient: KudosApiClient
   ): Promise<APIGatewayProxyResultV2<never>> {
     const appUser = await twitterClient.currentUser();
-    const appUserMentionStr = `@${appUser.screen_name}`;
     const tweet = tweetCreateEventActivity.tweet_create_events[0];
     const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id);
 
     // Skip if the tweet doesn't start with @slashkudos, is from a different app subscription,
     // if it was made by the app itself, or if there are no mentions.
     const isUserGivingKudos =
-      tweet.text.startsWith(appUserMentionStr) &&
-      tweetCreateEventActivity.for_user_id === appUser.id_str &&
-      tweet.user.id !== appUser.id &&
-      mentions.length > 0;
+      tweet.text.startsWith(`@${appUser.screen_name}`) && (tweet.user.id !== appUser.id || !tweet.in_reply_to_status_id) && mentions.length > 0;
 
     if (!isUserGivingKudos) {
       return Utilities.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
