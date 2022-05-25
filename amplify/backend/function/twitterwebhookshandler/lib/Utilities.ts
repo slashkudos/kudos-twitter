@@ -17,4 +17,17 @@ export default class Utilities {
       body: mergedOptions.stringify ? JSON.stringify(body) : body,
     };
   }
+
+  static errorToString(error: Error): string {
+    return `${error.name}: ${error.message}\n${error.stack}`;
+  }
+
+  static logError(error: Error, message?: string): void {
+    if (message) {
+      message += "\n";
+    } else {
+      message = "";
+    }
+    logger.error(`${message}${this.errorToString(error)}`);
+  }
 }
