@@ -25,7 +25,7 @@ export default class TweetCreateEventsActivityHandler {
     const isUserGivingKudos =
       tweetText.startsWith(`@${appUser.screen_name}`) && mentions.length > 0 && (!tweet.in_reply_to_status_id || tweet.in_reply_to_user_id !== appUser.id);
     if (!isUserGivingKudos) {
-      return Utilities.createApiResult("Tweet is not someone giving someone Kudos. Exiting", 200);
+      return Utilities.createApiResult("Tweet is not someone giving someone kudos.", 200);
     }
 
     const kudosCache = {};
@@ -64,9 +64,18 @@ export default class TweetCreateEventsActivityHandler {
 
         await twitterClient.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
       } catch (error) {
-        logger.error(error.message || error);
+        Utilities.logError(error, `Failed giving kudos to ${mention.screen_name}`);
       }
     }
-    return Utilities.createApiResult("Recorded Kudos and responded in a 🧵 on Twitter 🐦", 200);
+    try {
+      // Don't be a weirdo and like your own tweet
+      if (tweet.user.id !== appUser.id) {
+        logger.info("Liking the tweet.");
+        await twitterClient.v2.like(appUser.id_str, tweet.id_str);
+      }
+    } catch (error) {
+      Utilities.logError(error, "Error liking the tweet.");
+    }
+    return Utilities.createApiResult("Succesfully gave kudos", 200);
   }
 }

@@ -32,7 +32,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
         });
         return Utilities.createApiResult(body, 200, { stringify: false });
       } else {
-        return Utilities.createApiResult("crc_token missing from request.", 400);
+        return Utilities.createApiResult("The crc_token is missing from the request.", 400);
       }
     } else if (httpMethod === "POST") {
       // https://github.com/PLhery/node-twitter-api-v2/blob/master/doc/examples.md
@@ -45,7 +45,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       if (calculatedSignature !== webhookSignature) {
         logger.debug(`Webhook Signature: ${webhookSignature}`);
         logger.debug(`Server-side Calculated Signature: ${calculatedSignature}`);
-        return Utilities.createApiResult("Unauthorized. POST request is not originating from Twitter.", 403);
+        return Utilities.createApiResult("The request is not coming from Twitter.", 403);
       }
       logger.info("Validated the request is coming from Twitter.");
 
@@ -54,7 +54,7 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
       const appUser = await twitterClient.currentUser();
 
       if (eventBody.for_user_id !== appUser.id_str) {
-        return Utilities.createApiResult("Tweet is not for this app. Exiting", 200);
+        return Utilities.createApiResult("This tweet is not for this app.", 200);
       }
 
       if (eventBody.tweet_create_events && eventBody.user_has_blocked === false) {
@@ -70,15 +70,12 @@ export async function handler(event: APIGatewayEvent): Promise<APIGatewayProxyRe
         }
       }
 
-      return Utilities.createApiResult("Event is not handled by app. Exiting", 200);
+      return Utilities.createApiResult("This event is not handled by app.", 404);
     }
   } catch (error) {
-    logger.error(error.message || error);
-    throw error;
+    Utilities.logError(error);
+    return Utilities.createApiResult("Failed to handle event.", 500);
   }
 
-  const message = `Received an unhandled ${httpMethod} request.
-  Request Body: ${event.body}`;
-
-  return Utilities.createApiResult(message, 404);
+  return Utilities.createApiResult(`This event is not handled by app.`, 404);
 }

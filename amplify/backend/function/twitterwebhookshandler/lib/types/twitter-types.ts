@@ -6,7 +6,7 @@ export type User = components["schemas"]["User"];
 export interface TweetCreateEventActivity {
   for_user_id: string;
   user_has_blocked?: boolean;
-  tweet_create_events: Tweet[];
+  tweet_create_events: Omit<Tweet, "author_id">[];
 }
 export interface FollowEventActivity {
   for_user_id: string;
