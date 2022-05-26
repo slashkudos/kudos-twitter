@@ -40,6 +40,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: amplify status
-        run: amplify status -v | grep -v "GraphQL API KEY"
+        run: amplify status -v
       - name: Mock twitterwebhookshandler crcEvent
         run: amplify mock function twitterwebhookshandler --event lib/crcEvent.json

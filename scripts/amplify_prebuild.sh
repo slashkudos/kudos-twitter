@@ -23,7 +23,7 @@ npm ci --production
 cd -
 
 if command -v amplify &>/dev/null; then
-  amplify status -v | grep -v "GraphQL API KEY"
+  amplify status -v
 fi
 
 echo "Done"

@@ -56,8 +56,7 @@ jobs:
           exit $?
       - name: amplify push
         run: |
-          # GraphQL transformer version 2 outputs GraphQL API Key even with "CreateAPIKey": 0
-          amplify push --yes | grep -v "GraphQL API KEY"
+          amplify push --yes
           exit $?
       - name: Health check (After)
         run: |
