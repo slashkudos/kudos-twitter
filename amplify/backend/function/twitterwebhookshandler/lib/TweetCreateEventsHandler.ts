@@ -18,8 +18,6 @@ export default class TweetCreateEventsActivityHandler {
     const giverScreenName = tweet.user.screen_name;
     const appScreenName = appUser.screen_name;
 
-    await TweetCreateEventsActivityHandler.likeTweet(tweet, appUser, twitterClient);
-
     // Remove beginning mentions if tweet is a reply (these mentions are added automatically)
     const lastAppMentionIndex = tweet.text.lastIndexOf(`@${appScreenName}`);
     const mentions = tweet.entities.user_mentions.filter((mention) => mention.id !== appUser.id && mention.indices[0] > lastAppMentionIndex);
@@ -31,6 +29,8 @@ export default class TweetCreateEventsActivityHandler {
     if (!isUserGivingKudos) {
       return Utilities.createApiResult("Tweet is not someone giving someone kudos.", 200);
     }
+
+    await TweetCreateEventsActivityHandler.likeTweet(tweet, appUser, twitterClient);
 
     const kudosCache = {};
 
