@@ -47,7 +47,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Mock twitterwebhookshandler crcEvent
         run: |
-          amplify mock function twitterwebhookshandler --event lib/crcEvent.json
+          amplify mock function twitterwebhookshandler --event lib/crcEvent.json | tee /dev/stderr | grep -q '"statusCode": 200'
           exit $?
       - name: Health check (Before)
         continue-on-error: true
