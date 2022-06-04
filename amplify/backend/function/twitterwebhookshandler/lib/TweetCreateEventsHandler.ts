@@ -77,7 +77,7 @@ export default class TweetCreateEventsActivityHandler {
     }
 
     let tweetResponse = `Congrats @${receiverScreenName}, you received kudos from @${giverScreenName}! ${kudosCountMessage} 🎉 💖`;
-    tweetResponse += '\nView the feed: https://app.slashkudos.com';
+    tweetResponse += "\nView more kudos: https://app.slashkudos.com";
 
     logger.info(`Replying to tweet (${tweet.id_str}) with "${tweetResponse}"`);
     await twitterClient.v1.reply(tweetResponse, tweet.id_str, { auto_populate_reply_metadata: true });
