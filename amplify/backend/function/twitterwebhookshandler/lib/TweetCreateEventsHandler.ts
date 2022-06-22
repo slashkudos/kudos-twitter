@@ -48,7 +48,7 @@ export default class TweetCreateEventsActivityHandler {
           giverUsername: giverScreenName,
           receiverUsername: receiverScreenName,
           message: tweetText,
-          tweetId: tweet.id_str,
+          link: `https://twitter.com/${giverScreenName}/status/${tweet.id_str}`,
           giverProfileImageUrl: tweet.user.profile_image_url_https,
           receiverProfileImageUrl: receiverProfile.data.profile_image_url,
           dataSource: DataSourceApp.twitter,
@@ -69,7 +69,7 @@ export default class TweetCreateEventsActivityHandler {
     tweet: Omit<Tweet, "author_id">,
     twitterClient: TwitterApi
   ): Promise<void> {
-    const kudosCount = await kudosApiClient.getTotalKudosForReceiver(receiverScreenName, DataSourceApp.twitter);
+    const kudosCount = await kudosApiClient.getTotalKudosForUser(receiverScreenName);
 
     let kudosCountMessage = `You now have ${kudosCount} kudos!`;
     if (kudosCount === 1) {
