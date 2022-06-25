@@ -1,4 +1,10 @@
-# The official slashkudos twitter bot
+# The official slashkudos Twitter bot
+
+Show appreciation and build thriving open-source communities on Twitter by giving kudos on Twitter.
+
+Try it out! Tweet `@slashkudos Kudos to @philipgai_dev for creating slashkudos!`
+
+## Technical Resources
 
 - [Developer Dashboard](https://developer.twitter.com/en/portal/dashboard)
 - [Getting started with the Account Activity API](https://developer.twitter.com/en/docs/tutorials/getting-started-with-the-account-activity-api)
@@ -6,17 +12,8 @@
   - [Initial Setup using account-activity-dashboard](https://github.com/twitterdev/account-activity-dashboard)
 - [node-twitter-api-v2](https://github.com/PLhery/node-twitter-api-v2)
 
-## Endpoints
+## API Endpoints
 
 | Endpoint | Description | Stage |
 | -------- | ----------- | ----- |
-| <https://restapi.slashkudos.com> | Base URL | Prod |
 | <https://restapi.slashkudos.com/twitter> | Twitter Resources | Prod |
-
-## Testing using awscurl
-
-You can use awscurl to hit the API endpoints for simple tests.
-
-```bash
-awscurl --service execute-api https://restapi.slashkudos.com/twitter/webhooks
-```
