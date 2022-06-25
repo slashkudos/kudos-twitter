@@ -1,6 +1,6 @@
 # The official slashkudos Twitter bot
 
-Show appreciation and build thriving open-source communities on Twitter by giving kudos on Twitter.
+Show appreciation and build thriving open-source communities on Twitter using slashkudos.
 
 Try it out! Tweet `@slashkudos Kudos to @philipgai_dev for creating slashkudos!`
 
